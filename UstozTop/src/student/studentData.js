@@ -1,0 +1,43 @@
+export const subjects = [
+  { id: 'matematika', name: 'Matematika', category: 'Aniq fanlar', icon: '∑', color: '#8b6cff', progress: 92, completed: 28, total: 30, teacherId: 'sardor-rahimov', nextLesson: 'Kvadrat tenglamalar', symbols: ['x² + y² = r²', '∑ n = n(n+1)/2', 'a² + b² = c²', 'π ≈ 3.14159', 'f(x) = ax + b'], topics: ['Algebra va tenglamalar', 'Geometriya', 'Funksiyalar', 'Trigonometriya'] },
+  { id: 'ingliz-tili', name: 'Ingliz tili', category: 'Tillar', icon: 'A', color: '#28c7d9', progress: 78, completed: 26, total: 30, teacherId: 'madina-alieva', nextLesson: 'Present perfect: practice', symbols: ['Hello, world!', 'Present perfect', 'How are you?', 'I have learned', 'Vocabulary · 01'], topics: ['Grammatika', 'Lug‘at boyligi', 'Tinglab tushunish', 'Erkin suhbat'] },
+  { id: 'fizika', name: 'Fizika', category: 'Aniq fanlar', icon: '⚛', color: '#5b8dff', progress: 85, completed: 24, total: 28, teacherId: 'dilshod-usmonov', nextLesson: 'Kuch va harakat', symbols: ['F = m · a', 'E = mc²', 'v = s / t', 'λ · ν = c', 'P = U · I'], topics: ['Mexanika', 'Elektr va magnit', 'Optika', 'Issiqlik hodisalari'] },
+  { id: 'tarix', name: 'O‘zbekiston tarixi', category: 'Ijtimoiy fanlar', icon: '⌛', color: '#e3ad58', progress: 74, completed: 20, total: 27, teacherId: 'nigora-karimova', nextLesson: 'Buyuk Ipak yo‘li', symbols: ['Buyuk Ipak yo‘li', 'Samarqand · 1370', 'Amir Temur', 'Xiva · Buxoro', 'Tarix — xotira'], topics: ['Qadimgi davr', 'O‘rta asrlar', 'Amir Temur va temuriylar', 'Mustaqil O‘zbekiston'] },
+  { id: 'kimyo', name: 'Kimyo', category: 'Aniq fanlar', icon: '⚗', color: '#47c995', progress: 68, completed: 19, total: 28, teacherId: 'dilshod-usmonov', nextLesson: 'Kimyoviy reaksiyalar', symbols: ['H₂O', '2H₂ + O₂ → 2H₂O', 'NaCl', 'C₆H₁₂O₆', 'pH = 7'], topics: ['Atom va molekulalar', 'Kimyoviy reaksiyalar', 'Anorganik kimyo', 'Organik birikmalar'] },
+  { id: 'biologiya', name: 'Biologiya', category: 'Tabiiy fanlar', icon: '♧', color: '#72c66e', progress: 81, completed: 21, total: 26, teacherId: 'nigora-karimova', nextLesson: 'Hujayra tuzilishi', symbols: ['A · T · G · C', 'Hujayra → to‘qima', 'Fotosintez', 'DNA · RNK', 'Tirik tabiat'], topics: ['Hujayra biologiyasi', 'Odam anatomiyasi', 'Genetika', 'Ekologiya'] },
+  { id: 'ona-tili', name: 'Ona tili', category: 'Tillar', icon: 'O‘', color: '#ea8398', progress: 88, completed: 22, total: 25, teacherId: 'madina-alieva', nextLesson: 'Qo‘shma gaplar', symbols: ['So‘z → gap → matn', 'Ega + kesim', 'Ona tilim — jon tilim', 'So‘z turkumlari', 'Nutq madaniyati'], topics: ['Morfologiya', 'Sintaksis', 'Imlo qoidalari', 'Nutq madaniyati'] },
+  { id: 'adabiyot', name: 'Adabiyot', category: 'Gumanitar fanlar', icon: '❝', color: '#d696e6', progress: 72, completed: 18, total: 25, teacherId: 'madina-alieva', nextLesson: 'Alisher Navoiy ijodi', symbols: ['Xamsa · Navoiy', 'Boburnoma', 'So‘z — qalb tarjimoni', 'She’r va doston', 'Kitob — do‘st'], topics: ['Mumtoz adabiyot', 'Alisher Navoiy', 'Jahon adabiyoti', 'Badiiy tahlil'] },
+  { id: 'geografiya', name: 'Geografiya', category: 'Tabiiy fanlar', icon: '◎', color: '#53c8b5', progress: 63, completed: 17, total: 27, teacherId: 'nigora-karimova', nextLesson: 'Iqlim mintaqalari', symbols: ['39°39′ N', 'Toshkent · O‘zbekiston', 'Ekvator · 0°', 'Yer · 510 mln km²', 'N  ↑  S'], topics: ['Tabiiy geografiya', 'Materiklar', 'O‘zbekiston geografiyasi', 'Iqlim va tabiat'] },
+  { id: 'informatika', name: 'Informatika', category: 'Texnologiya', icon: '</>', color: '#4c9cf4', progress: 90, completed: 27, total: 30, teacherId: 'sardor-rahimov', nextLesson: 'Algoritmlar va Python', symbols: ['if (knowledge)', 'print("Salom!")', '10110101₂', '{ coding: true }', 'for (i = 0; i < ∞; i++)'], topics: ['Algoritmlash', 'Python dasturlash', 'Ma’lumotlar bazasi', 'Raqamli savodxonlik'] },
+  { id: 'rus-tili', name: 'Rus tili', category: 'Tillar', icon: 'Я', color: '#679bff', progress: 59, completed: 15, total: 25, teacherId: 'madina-alieva', nextLesson: 'Падежи: практика', symbols: ['Привет, мир!', 'Русский язык', 'Говорим вместе', 'Знание — сила', 'Слово · фраза'], topics: ['Grammatika', 'So‘z boyligi', 'O‘qish va tinglash', 'Suhbat ko‘nikmalari'] },
+  { id: 'huquq', name: 'Huquq asoslari', category: 'Ijtimoiy fanlar', icon: '§', color: '#ddb85b', progress: 67, completed: 16, total: 24, teacherId: 'nigora-karimova', nextLesson: 'Konstitutsiya va huquqlar', symbols: ['§ 1 · Qonun ustuvorligi', 'Konstitutsiya', 'Huquq = mas’uliyat', 'Adolat · tenglik', 'Fuqarolik huquqi'], topics: ['Konstitutsiyaviy huquq', 'Fuqarolik huquqlari', 'Davlat boshqaruvi', 'Huquq va mas’uliyat'] },
+  { id: 'chizmachilik', name: 'Chizmachilik', category: 'Ijodiy fanlar', icon: '⌁', color: '#ef9a69', progress: 62, completed: 13, total: 21, teacherId: 'dilshod-usmonov', nextLesson: 'Proyeksiyalar', symbols: ['△ A · B · C', '∠ 90°', 'Perspektiva', 'Chizma → loyiha', 'Shakl · o‘lcham'], topics: ['Geometrik chizmachilik', 'Proyeksiyalar', 'Texnik chizma', 'Loyihalash'] },
+  { id: 'musiqa', name: 'Musiqa madaniyati', category: 'Ijodiy fanlar', icon: '♫', color: '#ed83a9', progress: 77, completed: 17, total: 22, teacherId: 'madina-alieva', nextLesson: 'Maqom va milliy musiqa', symbols: ['♪ do · re · mi', '♫ Milliy kuy', 'Ritm · ohang', 'Maqom san’ati', '🎼 musiqa'], topics: ['Musiqa nazariyasi', 'O‘zbek milliy musiqasi', 'Maqom san’ati', 'Jahon musiqasi'] },
+  { id: 'jismoniy-tarbiya', name: 'Jismoniy tarbiya', category: 'Amaliy fanlar', icon: '🏃', color: '#8bc873', progress: 84, completed: 21, total: 25, teacherId: 'sardor-rahimov', nextLesson: 'Harakat va sog‘lomlik', symbols: ['Harakat = salomatlik', 'Nafas · kuch · chidam', '🏃 faol hayot', 'Kuniga 30 daqiqa', 'Maqsad → natija'], topics: ['Sog‘lom turmush tarzi', 'Yengil atletika', 'Jamoaviy sport', 'Jismoniy rivojlanish'] },
+]
+
+export const teachers = [
+  { id: 'sardor-rahimov', name: 'Sardor Rahimov', initials: 'SR', subjects: ['Matematika', 'Informatika'], experience: '8 yil', rating: '4.9', students: 1240, about: 'Murakkab mavzularni sodda va amaliy misollar bilan tushuntiradi. Har bir o‘quvchi uchun individual o‘quv yo‘li tuzadi.', qualification: 'Matematika magistri · Toshkent davlat universiteti', color: '#e6a878' },
+  { id: 'madina-alieva', name: 'Madina Alieva', initials: 'MA', subjects: ['Ingliz tili', 'Ona tili', 'Adabiyot', 'Rus tili', 'Musiqa madaniyati'], experience: '6 yil', rating: '4.9', students: 860, about: 'Til va adabiyotni jonli suhbat, ijodiy mashqlar hamda zamonaviy materiallar orqali o‘rgatadi.', qualification: 'Filologiya magistri · O‘zbekiston davlat jahon tillari universiteti', color: '#c795df' },
+  { id: 'dilshod-usmonov', name: 'Dilshod Usmonov', initials: 'DU', subjects: ['Fizika', 'Kimyo', 'Chizmachilik'], experience: '10 yil', rating: '4.8', students: 970, about: 'Tabiiy fanlarni tajriba va kundalik hayotdagi misollar bilan tushuntirib, mustaqil fikrlashni rivojlantiradi.', qualification: 'Fizika o‘qituvchisi · Mirzo Ulug‘bek nomidagi O‘zbekiston Milliy universiteti', color: '#70b9d3' },
+  { id: 'nigora-karimova', name: 'Nigora Karimova', initials: 'NK', subjects: ['O‘zbekiston tarixi', 'Biologiya', 'Geografiya', 'Huquq asoslari'], experience: '7 yil', rating: '4.9', students: 730, about: 'Tarix, tabiat va jamiyat fanlarini qiziqarli hikoyalar, xaritalar va amaliy tahlil bilan o‘rgatadi.', qualification: 'Tarix va ijtimoiy fanlar mutaxassisi · Samarqand davlat universiteti', color: '#6bb99e' },
+]
+
+export const lessons = [
+  { time: '14:00', duration: '45 daqiqa', subjectId: 'matematika', topic: 'Kvadrat tenglamalar', teacherId: 'sardor-rahimov', status: 'Keyingi dars', daysOfWeek: [1, 3, 5] },
+  { time: '16:30', duration: '45 daqiqa', subjectId: 'ingliz-tili', topic: 'Present perfect: practice', teacherId: 'madina-alieva', status: 'Rejada', daysOfWeek: [2, 4] },
+  { time: '10:00', duration: '45 daqiqa', subjectId: 'tarix', topic: 'Buyuk Ipak yo‘li', teacherId: 'nigora-karimova', status: 'Rejada', daysOfWeek: [2, 4] },
+  { time: '13:00', duration: '45 daqiqa', subjectId: 'fizika', topic: 'Kuch va harakat', teacherId: 'dilshod-usmonov', status: 'Rejada', daysOfWeek: [1, 3, 5] },
+]
+
+export const leaderboard = [
+  { name: 'Shahzod Islomov', points: '3 210' },
+  { name: 'Malika Ergasheva', points: '3 120' },
+  { name: 'Diyorbek Xasanov', points: '3 010' },
+  { name: 'Sevinch Yuldasheva', points: '2 940' },
+  { name: 'Akmal Raximov', points: '2 870' },
+  { name: 'Zarina Qodirova', points: '2 780' },
+  { name: 'Muhammadali Karimov', points: '2 720' },
+  { name: 'Javohir Aliyev', points: '2 680' },
+  { name: 'Gulnoza Tursunova', points: '2 610' },
+]

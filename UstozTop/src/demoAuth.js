@@ -92,3 +92,16 @@ export async function authenticateDemoUser(email, password) {
   if (passwordHash !== user.passwordHash) return null
   return { fullName: user.fullName, email: user.email, role: user.role }
 }
+
+export function updateDemoUserProfile(email, profile) {
+  const normalizedEmail = email.trim().toLowerCase()
+  const fullName = profile.fullName.trim().replace(/\s+/g, ' ')
+  if (fullName.length < 2) throw new Error('Ism kamida 2 ta belgidan iborat bo‘lsin.')
+
+  const users = readUsers()
+  const user = users.find((account) => account.email === normalizedEmail)
+  if (!user) throw new Error('Akkaunt topilmadi.')
+  user.fullName = fullName
+  localStorage.setItem(USERS_KEY, JSON.stringify(users))
+  return { fullName: user.fullName }
+}

@@ -74,7 +74,8 @@
 @keyframes auth-drift { from { transform: translate3d(0, 0, 0) rotate(-4deg); } to { transform: translate3d(18px, -26px, 0) rotate(4deg); } }
 @keyframes auth-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .auth *, .auth *::before { animation: none !important; transition: none !important; } }
-@media (max-width: 520px) { .auth-brand span { display: none; } .auth-symbol { display: none; } }
+@media (max-width: 520px) { .auth-symbol { display: none; } }
+@media (max-width: 340px) { .auth-brand span { display: none; } }
 @media (max-width: 640px) {
   .auth-main { gap: 24px; padding: 20px 0; }
   .auth-hero h1 { margin: 16px 0 0; font-size: 34px; }

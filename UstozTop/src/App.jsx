@@ -1,60 +1,127 @@
 import { useEffect, useState } from 'react'
+import { FiClock, FiLogOut, FiXCircle } from 'react-icons/fi'
+import { api } from './api.js'
+import './components/auth.css'
 import AuthFooter from './components/AuthFooter.jsx'
 import AuthHeader from './components/AuthHeader.jsx'
 import Dashboard from './components/Dashboard.jsx'
 import LoginForm from './components/LoginForm.jsx'
 import WelcomePanel from './components/WelcomePanel.jsx'
-import { SESSION_KEY, updateDemoUserProfile } from './demoAuth.js'
-import { LANGUAGE_KEY, THEME_KEY } from './i18n.js'
+import { LANGUAGE_KEY, THEME_KEY, translate as t } from './i18n.js'
+import { navigate, roleHome, usePath } from './router.js'
+
+const BACKGROUND_SYMBOLS = [
+  ['x² + y² = r²', '16%', '6%', '-1s'],
+  ['E = mc²', '30%', '44%', '-4s'],
+  ['Hello, world!', '72%', '8%', '-7s'],
+  ['H₂O', '82%', '52%', '-3s'],
+  ['</>', '12%', '62%', '-6s'],
+  ['π ≈ 3.14', '58%', '90%', '-2s'],
+  ['♫', '88%', '28%', '-9s'],
+]
 
 function readPreference(key, allowedValues, fallback) {
-  const value = localStorage.getItem(key)
-  return allowedValues.includes(value) ? value : fallback
+  try {
+    const value = localStorage.getItem(key)
+    return allowedValues.includes(value) ? value : fallback
+  } catch {
+    return fallback
+  }
 }
 
-function readSession() {
-  const storedSession = localStorage.getItem(SESSION_KEY)
-  if (!storedSession) return null
-  try {
-    const session = JSON.parse(storedSession)
-    if (session && ['admin', 'teacher', 'student'].includes(session.role)) return session
-    localStorage.removeItem(SESSION_KEY)
-  } catch {
-    localStorage.removeItem(SESSION_KEY)
-  }
-  return null
+function AuthBackground() {
+  return (
+    <div className="auth-bg" aria-hidden="true">
+      <span className="auth-blob auth-blob-1" />
+      <span className="auth-blob auth-blob-2" />
+      <span className="auth-blob auth-blob-3" />
+      <span className="auth-grid-bg" />
+      {BACKGROUND_SYMBOLS.map(([symbol, top, left, delay]) => (
+        <span key={symbol} className="auth-symbol" style={{ top, left, animationDelay: delay }}>{symbol}</span>
+      ))}
+    </div>
+  )
+}
+
+// Ustoz akkaunti admin tasdig'ini kutayotgan yoki rad etilgan holat.
+function RestrictedScreen({ user, language, onLogout }) {
+  const rejected = user.status === 'REJECTED'
+  const Icon = rejected ? FiXCircle : FiClock
+  return (
+    <div className="auth-main auth-restricted">
+      <section className="auth-card" role="status">
+        <span className={`auth-status-icon ${rejected ? 'is-rejected' : ''}`}><Icon aria-hidden="true" size={30} /></span>
+        <h2>{t(language, rejected ? 'So‘rovingiz rad etildi' : 'Tasdiq kutilmoqda')}</h2>
+        <p>
+          {t(language, rejected
+            ? 'Ustoz akkauntingiz administrator tomonidan tasdiqlanmadi. Savollar bo‘lsa administrator bilan bog‘laning.'
+            : 'Ustoz akkauntingiz administrator tomonidan tasdiqlangach, dashboard ochiladi. Odatda bu bir necha soat oladi.')}
+        </p>
+        <button type="button" className="auth-submit" onClick={onLogout}><FiLogOut aria-hidden="true" size={18} /> {t(language, 'Chiqish')}</button>
+      </section>
+    </div>
+  )
 }
 
 function App() {
-  const [user, setUser] = useState(readSession)
+  const path = usePath()
+  // undefined — sessiya tekshirilmoqda, null — kirmagan
+  const [user, setUser] = useState(undefined)
   const [language, setLanguage] = useState(() => readPreference(LANGUAGE_KEY, ['uz', 'ru', 'uz-Cyrl', 'en'], 'uz'))
   const [theme, setTheme] = useState(() => readPreference(THEME_KEY, ['dark', 'light'], 'dark'))
 
   useEffect(() => {
     document.documentElement.lang = language === 'ru' ? 'ru' : language === 'en' ? 'en' : 'uz'
     document.documentElement.dataset.theme = theme
-    localStorage.setItem(LANGUAGE_KEY, language)
-    localStorage.setItem(THEME_KEY, theme)
+    try {
+      localStorage.setItem(LANGUAGE_KEY, language)
+      localStorage.setItem(THEME_KEY, theme)
+    } catch {
+      // saqlash imkoni bo'lmasa, tanlov faqat joriy sessiya uchun amal qiladi
+    }
   }, [language, theme])
 
+  useEffect(() => {
+    api.get('/auth/me').then((data) => setUser(data.user)).catch(() => setUser(null))
+  }, [])
+
+  // Rol bo'yicha yo'naltirish: har bir rol faqat o'z dashboardida bo'la oladi.
+  useEffect(() => {
+    if (user === undefined) return
+    if (user) {
+      if (!path.startsWith(`/${user.role.toLowerCase()}/`)) navigate(roleHome(user.role), { replace: true })
+    } else if (!['/', '/login', '/register', '/reset-password'].includes(path)) {
+      navigate('/', { replace: true })
+    }
+  }, [user, path])
+
+  async function handleLogout() {
+    try {
+      await api.post('/auth/logout')
+    } finally {
+      setUser(null)
+      navigate('/', { replace: true })
+    }
+  }
+
   function handleAuthenticated(account) {
-    localStorage.setItem(SESSION_KEY, JSON.stringify(account))
     setUser(account)
+    navigate(roleHome(account.role), { replace: true })
   }
 
-  function handleLogout() {
-    localStorage.removeItem(SESSION_KEY)
-    setUser(null)
+  async function handleProfileUpdate(profile) {
+    const data = await api.patch('/auth/profile', profile)
+    setUser(data.user)
+    return data.user
   }
 
-  function handleProfileUpdate(profile) {
-    const savedProfile = updateDemoUserProfile(user.email, profile)
-    const updatedUser = { ...user, ...savedProfile }
-    localStorage.setItem(SESSION_KEY, JSON.stringify(updatedUser))
-    setUser(updatedUser)
+  const toggleTheme = () => setTheme((current) => current === 'dark' ? 'light' : 'dark')
+
+  if (user === undefined) {
+    return <main data-theme={theme} className="auth"><AuthBackground /><div className="auth-loading" role="status" aria-label="Yuklanmoqda"><span className="auth-spinner" /></div></main>
   }
 
-  if (user?.role === 'student') {
+  if (user && user.status === 'ACTIVE') {
     return (
       <Dashboard
         user={user}
@@ -63,31 +130,23 @@ function App() {
         language={language}
         onLanguageChange={setLanguage}
         theme={theme}
-        onThemeToggle={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')}
+        onThemeToggle={toggleTheme}
       />
     )
   }
 
   return (
-    <main data-theme={theme} className="auth-shell flex min-h-screen flex-col bg-[#070811] px-5 py-4 text-[#f0efff] sm:px-8 sm:py-6 xl:px-[5.5vw]">
-      <AuthHeader
-        language={language}
-        onLanguageChange={setLanguage}
-        theme={theme}
-        onThemeToggle={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')}
-      />
-
+    <main data-theme={theme} className="auth">
+      <AuthBackground />
+      <AuthHeader language={language} onLanguageChange={setLanguage} theme={theme} onThemeToggle={toggleTheme} />
       {user ? (
-        <div className="mx-auto my-auto flex w-full max-w-[1340px] justify-center py-8 lg:py-7">
-          <Dashboard user={user} onLogout={handleLogout} language={language} />
-        </div>
+        <RestrictedScreen user={user} language={language} onLogout={handleLogout} />
       ) : (
-        <div className="mx-auto my-auto grid w-full max-w-[1340px] grid-cols-1 items-center gap-8 py-8 lg:grid-cols-[1.08fr_.92fr] lg:gap-[8.5vw] lg:py-7">
+        <div className="auth-main">
           <WelcomePanel language={language} />
-          <LoginForm onAuthenticated={handleAuthenticated} language={language} />
+          <LoginForm onAuthenticated={handleAuthenticated} language={language} path={path} />
         </div>
       )}
-
       <AuthFooter language={language} />
     </main>
   )

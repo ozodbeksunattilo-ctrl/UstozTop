@@ -1,0 +1,55 @@
+/* Ustoz va admin panellari: yangi sahifalar uchun qoshimcha uslublar */
+.role-stack { display: grid; gap: 20px; }
+.role-top-spacer { flex: 1; }
+.role-date { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--role-line); border-radius: 999px; background: var(--role-panel); padding: 8px 14px; color: var(--role-muted); font-size: 14px; text-transform: capitalize; }
+.role-back { width: fit-content; border: 0; background: none; padding: 4px 0; color: var(--role-muted); font: inherit; font-weight: 600; cursor: pointer; }
+.role-back:hover { color: var(--role-text); }
+.role-clickable { width: 100%; color: inherit; font: inherit; text-align: left; cursor: pointer; transition: transform .2s, border-color .2s; }
+.role-clickable:hover { transform: translateY(-3px); border-color: rgba(139, 108, 255, .6); }
+.role-stats { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.role-callout { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; border: 1px solid rgba(227, 173, 88, .4); border-radius: 14px; background: rgba(227, 173, 88, .1); padding: 12px 16px; }
+.role-callout svg { flex: none; color: #e3ad58; font-size: 20px; }
+.role-callout span { flex: 1; }
+.role-recent { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--role-line); padding: 10px 0; }
+.role-recent:last-child { border-bottom: 0; }
+.role-recent > span:nth-child(2) { display: grid; flex: 1; min-width: 0; }
+.role-recent small { color: var(--role-muted); font-size: 12px; }
+.role-actions { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.role-today { display: grid; gap: 10px; }
+.role-today > div { display: grid; align-items: center; gap: 14px; border: 1px solid var(--role-line); border-radius: 14px; background: var(--role-panel-soft); padding: 12px 14px; grid-template-columns: 64px minmax(0, 1fr) auto; }
+.role-today strong { font-size: 18px; }
+.role-today span { display: grid; }
+.role-today small { color: var(--role-muted); }
+.role-inline-form { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+.role-inline-form input { flex: 1 1 240px; min-height: 42px; border: 1px solid var(--role-line); border-radius: 11px; background: var(--role-bg); padding: 0 12px; color: var(--role-text); font: inherit; outline: none; }
+.role-inline-form input:focus { border-color: #8b6cff; }
+.role-group-card.role-clickable { display: block; }
+.role-subject-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+.role-subject-tile { display: grid; align-items: center; gap: 12px; border: 1px solid var(--role-line); border-radius: 14px; background: var(--role-panel-soft); padding: 12px; grid-template-columns: 44px minmax(0, 1fr) auto; }
+.role-subject-tile.is-off, .ui-table tr.is-off { opacity: .55; }
+.tile-icon { display: grid; width: 44px; height: 44px; place-items: center; border-radius: 12px; background: color-mix(in srgb, var(--tile) 20%, transparent); color: var(--tile); font-size: 20px; }
+.tile-body { display: grid; min-width: 0; }
+.tile-body strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tile-body small { color: var(--role-muted); font-size: 12px; }
+.ui-select-sm { height: 38px; min-width: 170px; }
+.ui-table small { color: var(--role-muted); }
+.ui-table code { border-radius: 6px; background: rgba(139, 108, 255, .14); padding: 2px 6px; font-size: 12px; }
+.grade-table td { padding: 8px 10px; }
+.score-input { width: 64px; height: 38px; border: 1px solid var(--role-line); border-radius: 10px; background: var(--role-bg); color: var(--role-text); font: inherit; text-align: center; outline: none; }
+.score-input:focus, .note-input:focus { border-color: #8b6cff; }
+.note-input { width: 100%; min-width: 140px; height: 38px; border: 1px solid var(--role-line); border-radius: 10px; background: var(--role-bg); padding: 0 10px; color: var(--role-text); font: inherit; outline: none; }
+.switch { position: relative; display: inline-block; width: 46px; height: 26px; cursor: pointer; }
+.switch input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.switch i { position: absolute; inset: 0; border-radius: 26px; background: rgba(160, 165, 210, .3); transition: background .2s; pointer-events: none; }
+.switch i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform .2s; }
+.switch input:checked + i { background: #47c995; }
+.switch input:checked + i::after { transform: translateX(20px); }
+.switch input:focus-visible + i { outline: 2px solid #8b6cff; outline-offset: 2px; }
+.teacher-profile-form { margin-top: 22px; border-top: 1px solid var(--role-line); padding-top: 18px; }
+.teacher-profile-form h3 { margin: 0; font-size: 16px; }
+.role-overview-grid > .role-card { min-width: 0; }
+@media (max-width: 760px) { .role-date { display: none; } .role-today > div { grid-template-columns: 54px minmax(0, 1fr); } .role-today button { grid-column: 1 / -1; } }
+
+.role-profile-link > span:last-child { display: grid; min-width: 0; text-align: left; }
+.role-profile-link strong { overflow: hidden; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+.role-profile-link small { color: var(--role-muted); font-size: 12px; }

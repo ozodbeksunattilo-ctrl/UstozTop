@@ -1,3 +1,4 @@
+// Taqdimot uchun demo fanlar va ustozlar tavsifi (faqat seed ishlatadi).
 export const subjects = [
   { id: 'matematika', name: 'Matematika', category: 'Aniq fanlar', icon: '∑', color: '#8b6cff', progress: 92, completed: 28, total: 30, teacherId: 'sardor-rahimov', nextLesson: 'Kvadrat tenglamalar', symbols: ['x² + y² = r²', '∑ n = n(n+1)/2', 'a² + b² = c²', 'π ≈ 3.14159', 'f(x) = ax + b'], topics: ['Algebra va tenglamalar', 'Geometriya', 'Funksiyalar', 'Trigonometriya'] },
   { id: 'ingliz-tili', name: 'Ingliz tili', category: 'Tillar', icon: 'A', color: '#28c7d9', progress: 78, completed: 26, total: 30, teacherId: 'madina-alieva', nextLesson: 'Present perfect: practice', symbols: ['Hello, world!', 'Present perfect', 'How are you?', 'I have learned', 'Vocabulary · 01'], topics: ['Grammatika', 'Lug‘at boyligi', 'Tinglab tushunish', 'Erkin suhbat'] },
@@ -16,6 +17,7 @@ export const subjects = [
   { id: 'jismoniy-tarbiya', name: 'Jismoniy tarbiya', category: 'Amaliy fanlar', icon: '🏃', color: '#8bc873', progress: 84, completed: 21, total: 25, teacherId: 'sardor-rahimov', nextLesson: 'Harakat va sog‘lomlik', symbols: ['Harakat = salomatlik', 'Nafas · kuch · chidam', '🏃 faol hayot', 'Kuniga 30 daqiqa', 'Maqsad → natija'], topics: ['Sog‘lom turmush tarzi', 'Yengil atletika', 'Jamoaviy sport', 'Jismoniy rivojlanish'] },
 ]
 
+
 export const teachers = [
   { id: 'sardor-rahimov', name: 'Sardor Rahimov', initials: 'SR', subjects: ['Matematika', 'Informatika'], experience: '8 yil', rating: '4.9', students: 1240, about: 'Murakkab mavzularni sodda va amaliy misollar bilan tushuntiradi. Har bir o‘quvchi uchun individual o‘quv yo‘li tuzadi.', qualification: 'Matematika magistri · Toshkent davlat universiteti', color: '#e6a878' },
   { id: 'madina-alieva', name: 'Madina Alieva', initials: 'MA', subjects: ['Ingliz tili', 'Ona tili', 'Adabiyot', 'Rus tili', 'Musiqa madaniyati'], experience: '6 yil', rating: '4.9', students: 860, about: 'Til va adabiyotni jonli suhbat, ijodiy mashqlar hamda zamonaviy materiallar orqali o‘rgatadi.', qualification: 'Filologiya magistri · O‘zbekiston davlat jahon tillari universiteti', color: '#c795df' },
@@ -23,21 +25,3 @@ export const teachers = [
   { id: 'nigora-karimova', name: 'Nigora Karimova', initials: 'NK', subjects: ['O‘zbekiston tarixi', 'Biologiya', 'Geografiya', 'Huquq asoslari'], experience: '7 yil', rating: '4.9', students: 730, about: 'Tarix, tabiat va jamiyat fanlarini qiziqarli hikoyalar, xaritalar va amaliy tahlil bilan o‘rgatadi.', qualification: 'Tarix va ijtimoiy fanlar mutaxassisi · Samarqand davlat universiteti', color: '#6bb99e' },
 ]
 
-export const lessons = [
-  { time: '14:00', duration: '45 daqiqa', subjectId: 'matematika', topic: 'Kvadrat tenglamalar', teacherId: 'sardor-rahimov', status: 'Keyingi dars', daysOfWeek: [1, 3, 5] },
-  { time: '16:30', duration: '45 daqiqa', subjectId: 'ingliz-tili', topic: 'Present perfect: practice', teacherId: 'madina-alieva', status: 'Rejada', daysOfWeek: [2, 4] },
-  { time: '10:00', duration: '45 daqiqa', subjectId: 'tarix', topic: 'Buyuk Ipak yo‘li', teacherId: 'nigora-karimova', status: 'Rejada', daysOfWeek: [2, 4] },
-  { time: '13:00', duration: '45 daqiqa', subjectId: 'fizika', topic: 'Kuch va harakat', teacherId: 'dilshod-usmonov', status: 'Rejada', daysOfWeek: [1, 3, 5] },
-]
-
-export const leaderboard = [
-  { name: 'Shahzod Islomov', points: '3 210' },
-  { name: 'Malika Ergasheva', points: '3 120' },
-  { name: 'Diyorbek Xasanov', points: '3 010' },
-  { name: 'Sevinch Yuldasheva', points: '2 940' },
-  { name: 'Akmal Raximov', points: '2 870' },
-  { name: 'Zarina Qodirova', points: '2 780' },
-  { name: 'Muhammadali Karimov', points: '2 720' },
-  { name: 'Javohir Aliyev', points: '2 680' },
-  { name: 'Gulnoza Tursunova', points: '2 610' },
-]

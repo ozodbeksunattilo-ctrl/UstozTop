@@ -1,0 +1,49 @@
+/* Oquvchi paneli: ustozlar, guruhlar, sharhlar, davomat va natijalar uchun qoshimcha uslublar */
+.student-stats-five { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+@media (max-width: 1200px) { .student-stats-five { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .student-stats-five { grid-template-columns: repeat(2, minmax(0, 1fr)); } .student-stats-five .student-stat:last-child { grid-column: 1 / -1; } }
+
+.tcard { display: grid; align-content: start; gap: 12px; border: 1px solid var(--student-border); border-radius: 18px; background: var(--student-panel-2); padding: 18px; color: var(--student-text); text-align: left; cursor: pointer; transition: transform .2s, border-color .2s; }
+.tcard:hover { transform: translateY(-3px); border-color: var(--student-accent); }
+.tcard-head { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.tcard-head > span:last-child { display: grid; gap: 3px; min-width: 0; }
+.tcard-head strong { overflow: hidden; font-size: 17px; text-overflow: ellipsis; white-space: nowrap; }
+.tcard-qual { color: var(--student-muted); font-size: 14px; line-height: 1.4; }
+.tcard-chips, .tcard-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.tcard-meta { gap: 14px; color: var(--student-muted); font-size: 13px; }
+.tcard-meta span { display: inline-flex; align-items: center; gap: 5px; }
+.tcard-chips { margin-top: 12px; }
+
+.grow-list { display: grid; gap: 10px; }
+.grow { display: grid; align-items: center; gap: 12px; border: 1px solid var(--student-border); border-radius: 14px; background: var(--student-panel-2); padding: 12px; grid-template-columns: 44px minmax(0, 1fr) auto; }
+.grow-icon { display: grid; width: 44px; height: 44px; place-items: center; border-radius: 12px; background: color-mix(in srgb, var(--subject-accent) 18%, transparent); color: var(--subject-accent); font-size: 19px; font-weight: 700; }
+.grow-body { display: grid; min-width: 0; gap: 2px; }
+.grow-body strong { overflow: hidden; font-size: 15px; text-overflow: ellipsis; white-space: nowrap; }
+.grow-body small { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; color: var(--student-muted); font-size: 13px; }
+
+.review { display: grid; gap: 4px; border-bottom: 1px solid var(--student-border); padding: 12px 0; }
+.review:last-child { border-bottom: 0; }
+.review > div { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.review p { margin: 0; color: var(--student-muted); font-size: 14px; }
+.review small { color: var(--student-muted); font-size: 12px; }
+.review-form { margin-top: 4px; }
+.review-stars { display: flex; gap: 4px; }
+.review-stars button { border: 0; background: none; color: rgba(160, 165, 210, .4); font-size: 32px; line-height: 1; cursor: pointer; transition: transform .15s; }
+.review-stars button:hover { transform: scale(1.15); }
+.review-stars button.is-on { color: #e3ad58; }
+
+.att-list { display: grid; gap: 4px; max-height: 520px; overflow-y: auto; }
+.att-row { display: grid; align-items: center; gap: 10px; border-bottom: 1px solid var(--student-border); padding: 9px 2px; grid-template-columns: 58px minmax(0, 1fr) auto; font-size: 14px; }
+.att-row > span:first-child { color: var(--student-muted); }
+.att-row strong { overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+
+.recent-results { display: grid; gap: 8px; }
+.recent-row { display: grid; align-items: center; gap: 12px; border: 1px solid var(--student-border); border-radius: 12px; background: var(--student-panel-2); padding: 10px 14px; grid-template-columns: 10px minmax(0, 1fr) minmax(60px, 120px) 56px; }
+.recent-row > i { width: 10px; height: 10px; border-radius: 50%; }
+.recent-row > span:nth-child(2) { display: grid; min-width: 0; }
+.recent-row small { color: var(--student-muted); font-size: 12px; }
+.recent-row > strong { text-align: right; }
+@media (max-width: 520px) { .recent-row { grid-template-columns: 10px minmax(0, 1fr) 52px; } .recent-row .ui-bar { display: none; } }
+
+.ui-linkish { border: 0; background: none; padding: 0; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.student-ranking-layout > .student-card:first-child { min-width: 0; }

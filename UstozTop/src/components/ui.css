@@ -1,0 +1,77 @@
+/* Umumiy UI: avatar, yulduzlar, holatlar, jadval, chip, toolbar (oquvchi, ustoz va admin panellarida) */
+.student-app { --ui-line: var(--student-border); --ui-field: var(--student-bg); --ui-text: var(--student-text); --ui-muted: var(--student-muted); --ui-panel: var(--student-panel); }
+.role-app { --ui-line: var(--role-line); --ui-field: var(--role-bg); --ui-text: var(--role-text); --ui-muted: var(--role-muted); --ui-panel: var(--role-panel); }
+
+.ui-avatar { display: inline-grid; flex: none; place-items: center; border-radius: 50%; background: linear-gradient(145deg, #a990ed, #493b80); color: #fff; font-weight: 700; }
+.ui-stars { display: inline-flex; align-items: center; gap: 2px; font-size: 14px; }
+.ui-stars svg { color: rgba(160, 165, 210, .4); }
+.ui-stars svg.is-on { color: #e3ad58; fill: #e3ad58; }
+.ui-stars strong { margin-left: 5px; }
+.ui-stars small { margin-left: 4px; opacity: .65; }
+.ui-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 140px; padding: 24px; text-align: center; color: var(--ui-muted, #959bb8); }
+.ui-state svg { font-size: 28px; }
+.ui-state p { margin: 0; max-width: 360px; font-size: 14px; }
+.ui-empty strong { color: var(--ui-text, inherit); font-size: 16px; }
+.ui-state-error { flex-direction: row; flex-wrap: wrap; color: #ff8da1; }
+.ui-state-error button { border: 1px solid currentColor; border-radius: 10px; background: none; padding: 6px 14px; color: inherit; font: inherit; cursor: pointer; }
+.ui-spinner { width: 28px; height: 28px; border: 3px solid rgba(160, 165, 210, .25); border-top-color: #8b6cff; border-radius: 50%; animation: ui-spin .8s linear infinite; }
+@keyframes ui-spin { to { transform: rotate(360deg); } }
+
+.ui-chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; background: color-mix(in srgb, var(--chip, #8b6cff) 18%, transparent); padding: 3px 10px; color: var(--chip, #8b6cff); font-size: 12px; font-weight: 650; white-space: nowrap; }
+.ui-chip-success { --chip: #47c995; }
+.ui-chip-warn { --chip: #e3ad58; }
+.ui-chip-danger { --chip: #ff7a93; }
+.ui-chip-muted { --chip: #959bb8; }
+
+.ui-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 16px; }
+.ui-toolbar > * { min-width: 0; }
+.ui-search { display: flex; flex: 1 1 240px; align-items: center; gap: 10px; height: 44px; border: 1px solid var(--ui-line); border-radius: 12px; background: var(--ui-field); padding: 0 14px; color: var(--ui-muted); }
+.ui-search:focus-within { border-color: #8b6cff; box-shadow: 0 0 0 4px rgba(139, 108, 255, .15); }
+.ui-search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ui-text); font: inherit; font-size: 15px; }
+.ui-select { height: 44px; border: 1px solid var(--ui-line); border-radius: 12px; background-color: var(--ui-field); padding: 0 12px; color: var(--ui-text); font: inherit; font-size: 14px; outline: none; }
+.ui-select:focus { border-color: #8b6cff; }
+.ui-seg { display: inline-flex; gap: 4px; border: 1px solid var(--ui-line); border-radius: 12px; background: var(--ui-field); padding: 4px; }
+.ui-seg button { min-height: 36px; border: 0; border-radius: 9px; background: none; padding: 0 16px; color: var(--ui-muted); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.ui-seg button.is-active { background: linear-gradient(135deg, #8b6cff, #6a45e6); color: #fff; }
+
+.ui-table-wrap { overflow-x: auto; }
+.ui-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.ui-table th { border-bottom: 1px solid var(--ui-line); padding: 10px 12px; color: var(--ui-muted); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-align: left; text-transform: uppercase; white-space: nowrap; }
+.ui-table td { border-bottom: 1px solid var(--ui-line); padding: 12px; vertical-align: middle; }
+.ui-table tr:last-child td { border-bottom: 0; }
+.ui-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.ui-table .me td { background: rgba(139, 108, 255, .12); }
+.ui-person { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.ui-person > span:last-child { display: grid; min-width: 0; }
+.ui-person small { color: var(--ui-muted); font-size: 12px; }
+
+.ui-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; border: 1px solid var(--ui-line); border-radius: 11px; background: none; padding: 0 16px; color: var(--ui-text); font: inherit; font-size: 14px; font-weight: 650; cursor: pointer; transition: border-color .2s, opacity .2s; }
+.ui-btn:hover:not(:disabled) { border-color: #8b6cff; }
+.ui-btn:disabled { cursor: not-allowed; opacity: .55; }
+.ui-btn-primary { border: 0; background: linear-gradient(135deg, #8b6cff, #6a45e6); color: #fff; box-shadow: 0 8px 20px rgba(106, 69, 230, .28); }
+.ui-btn-danger { border-color: rgba(255, 122, 147, .5); color: #ff8da1; }
+.ui-btn-success { border-color: rgba(71, 201, 149, .5); color: #47c995; }
+.ui-btn-sm { min-height: 34px; padding: 0 12px; font-size: 13px; }
+
+.ui-modal { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; overflow-y: auto; background: rgba(4, 5, 12, .66); padding: 16px; backdrop-filter: blur(6px); }
+.ui-dialog { width: min(480px, 100%); border: 1px solid var(--ui-line); border-radius: 22px; background: var(--ui-panel); padding: 24px; color: var(--ui-text); box-shadow: 0 30px 90px rgba(0, 0, 0, .45); }
+.ui-dialog h2 { margin: 0 0 6px; font-size: 20px; }
+.ui-dialog p { margin: 0 0 16px; color: var(--ui-muted); }
+.ui-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+.ui-form { display: grid; gap: 14px; }
+.ui-form label { display: grid; gap: 6px; color: var(--ui-muted); font-size: 13px; font-weight: 600; }
+.ui-form :is(input, select, textarea) { width: 100%; min-height: 44px; box-sizing: border-box; border: 1px solid var(--ui-line); border-radius: 11px; background: var(--ui-field); padding: 0 12px; color: var(--ui-text); font: inherit; font-size: 15px; outline: none; }
+.ui-form textarea { min-height: 88px; padding: 10px 12px; resize: vertical; }
+.ui-form :is(input, select, textarea):focus { border-color: #8b6cff; box-shadow: 0 0 0 4px rgba(139, 108, 255, .15); }
+.ui-form-row { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+.ui-days { display: flex; flex-wrap: wrap; gap: 6px; }
+.ui-days button { min-width: 44px; min-height: 36px; border: 1px solid var(--ui-line); border-radius: 10px; background: none; color: var(--ui-muted); font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; }
+.ui-days button.is-on { border-color: #8b6cff; background: rgba(139, 108, 255, .2); color: var(--ui-text); }
+.ui-note { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; border: 1px solid rgba(139, 108, 255, .35); border-radius: 14px; background: rgba(139, 108, 255, .12); padding: 12px 16px; font-size: 15px; }
+.ui-note.is-error { border-color: rgba(255, 122, 147, .45); background: rgba(255, 90, 120, .1); }
+.ui-note button { display: grid; border: 0; background: none; color: inherit; cursor: pointer; }
+.ui-stack { display: grid; gap: 20px; }
+.ui-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.ui-bar { display: block; overflow: hidden; height: 8px; border-radius: 8px; background: rgba(160, 165, 210, .16); }
+.ui-bar > i { display: block; height: 100%; border-radius: inherit; background: var(--bar, linear-gradient(90deg, #8b6cff, #38d0e0)); }
+@media (max-width: 480px) { .ui-form-row { grid-template-columns: 1fr; } .ui-dialog { padding: 18px; } .ui-seg button { padding: 0 12px; } }

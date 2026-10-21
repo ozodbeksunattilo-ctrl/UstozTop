@@ -1,0 +1,246 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  PENDING
+  REJECTED
+  BLOCKED
+}
+
+model User {
+  id           String     @id @default(cuid())
+  firstName    String
+  lastName     String
+  email        String?    @unique
+  phone        String?    @unique
+  passwordHash String
+  role         Role
+  status       UserStatus @default(ACTIVE)
+  avatarColor  String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  studentProfile StudentProfile?
+  teacherProfile TeacherProfile?
+  sessions       Session[]
+  resetTokens    PasswordResetToken[]
+  memberships    GroupMembership[]
+  assignments    TeacherAssignment[]
+  attendances    Attendance[]        @relation("AttendanceStudent")
+  markedAttendances Attendance[]     @relation("AttendanceMarker")
+  assessments    Assessment[]        @relation("AssessmentStudent")
+  givenAssessments Assessment[]      @relation("AssessmentTeacher")
+  reviewsWritten TeacherReview[]     @relation("ReviewStudent")
+  reviewsReceived TeacherReview[]    @relation("ReviewTeacher")
+  notifications  Notification[]
+  auditLogs      AuditLog[]
+  aiConversations AIConversation[]
+
+  @@index([role, status])
+}
+
+model StudentProfile {
+  userId String  @id
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  grade  String?
+}
+
+model TeacherProfile {
+  userId          String @id
+  user            User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio             String @default("")
+  qualification   String @default("")
+  experienceYears Int    @default(0)
+}
+
+model Subject {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  category     String
+  icon         String   @default("✦")
+  color        String   @default("#8b6cff")
+  symbols      String[]
+  topics       String[]
+  totalLessons Int      @default(24)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  groups       Group[]
+}
+
+model Group {
+  id         String   @id @default(cuid())
+  name       String
+  subjectId  String
+  subject    Subject  @relation(fields: [subjectId], references: [id])
+  lessonTime String   @default("14:00")
+  daysOfWeek Int[]
+  capacity   Int      @default(20)
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  teacherAssignment TeacherAssignment?
+  memberships       GroupMembership[]
+  attendances       Attendance[]
+  assessments       Assessment[]
+
+  @@index([subjectId])
+}
+
+model TeacherAssignment {
+  id         String   @id @default(cuid())
+  groupId    String   @unique
+  group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  teacherId  String
+  teacher    User     @relation(fields: [teacherId], references: [id])
+  assignedAt DateTime @default(now())
+
+  @@index([teacherId])
+}
+
+model GroupMembership {
+  id        String   @id @default(cuid())
+  groupId   String
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  studentId String
+  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  joinedAt  DateTime @default(now())
+
+  @@unique([groupId, studentId])
+  @@index([studentId])
+}
+
+model Attendance {
+  id         String   @id @default(cuid())
+  groupId    String
+  group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  studentId  String
+  student    User     @relation("AttendanceStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  date       DateTime @db.Date
+  present    Boolean
+  markedById String
+  markedBy   User     @relation("AttendanceMarker", fields: [markedById], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@unique([groupId, studentId, date])
+  @@index([studentId])
+}
+
+// Ball mezonlari: qatnashish, faollik, topshiriq — har biri 0..10, jami 0..30.
+model Assessment {
+  id              String   @id @default(cuid())
+  groupId         String
+  group           Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  studentId       String
+  student         User     @relation("AssessmentStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  teacherId       String
+  teacher         User     @relation("AssessmentTeacher", fields: [teacherId], references: [id])
+  date            DateTime @db.Date
+  attendanceScore Int
+  activityScore   Int
+  homeworkScore   Int
+  total           Int
+  note            String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([groupId, studentId, date])
+  @@index([studentId])
+  @@index([teacherId])
+}
+
+model TeacherReview {
+  id        String   @id @default(cuid())
+  studentId String
+  student   User     @relation("ReviewStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  teacherId String
+  teacher   User     @relation("ReviewTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@unique([studentId, teacherId])
+  @@index([teacherId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  actor     User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action    String
+  entity    String
+  entityId  String?
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  userAgent String?
+
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model AIConversation {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String      @default("Yangi suhbat")
+  subject   String?
+  createdAt DateTime    @default(now())
+  messages  AIMessage[]
+
+  @@index([userId])
+}
+
+model AIMessage {
+  id             String         @id @default(cuid())
+  conversationId String
+  conversation   AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String
+  content        String
+  createdAt      DateTime       @default(now())
+
+  @@index([conversationId])
+}

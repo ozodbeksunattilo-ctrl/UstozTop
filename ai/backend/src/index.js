@@ -5,13 +5,15 @@ import { generateReply, hasApiKey, uiErrorMessage } from './gemini.js'
 import { parseMessages } from './parseMessages.js'
 import { rateLimiter } from './rateLimit.js'
 
+const LOCAL_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1):\d+$/
+
 const app = express()
 
 app.disable('x-powered-by')
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || config.allowedOrigins.includes(origin)) return callback(null, true)
+      if (!origin || config.allowedOrigins.includes(origin) || LOCAL_ORIGIN.test(origin)) return callback(null, true)
       return callback(null, false)
     },
   }),

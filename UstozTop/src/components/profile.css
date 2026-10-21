@@ -1,0 +1,50 @@
+/* Profil tahrirlash + butun loyiha bo'yicha bir xil select/input ko'rinishi */
+.student-app, .role-app {
+  --pe-text: var(--student-text, var(--role-text));
+  --pe-muted: var(--student-muted, var(--role-muted));
+  --pe-line: var(--student-border, var(--role-line));
+  --pe-field: var(--student-bg, var(--role-bg));
+}
+.student-app { color-scheme: dark; }
+.student-app[data-theme="light"], .role-app[data-theme="light"] { color-scheme: light; }
+.role-app { color-scheme: dark; }
+
+.pe { display: grid; gap: 22px; max-width: 520px; }
+.pe-form { display: grid; gap: 16px; }
+.pe-form label { display: grid; gap: 8px; }
+.pe-form label > span, .pe-colors legend { color: var(--pe-muted); font-size: 14px; font-weight: 600; }
+.pe-form :is(input, select) { width: 100%; min-height: 46px; box-sizing: border-box; border: 1px solid var(--pe-line); border-radius: 12px; background: var(--pe-field); padding: 0 14px; color: var(--pe-text); font-size: 15px; outline: none; transition: border-color .2s, box-shadow .2s; }
+.pe-form :is(input, select):focus { border-color: #8b6cff; box-shadow: 0 0 0 4px rgba(139, 108, 255, .16); }
+.pe-form input:disabled { cursor: not-allowed; opacity: .6; }
+.pe-colors { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 0; border: 0; padding: 0; }
+.pe-colors legend { margin-bottom: 10px; padding: 0; }
+.pe-colors button { display: grid; width: 34px; height: 34px; place-items: center; border: 2px solid transparent; border-radius: 50%; color: #fff; cursor: pointer; transition: transform .15s, box-shadow .15s; }
+.pe-colors button:hover { transform: scale(1.1); }
+.pe-colors button.is-active { box-shadow: 0 0 0 3px var(--pe-field), 0 0 0 5px currentColor; }
+.pe-actions { display: flex; justify-content: flex-end; gap: 10px; }
+.pe-actions button { min-height: 44px; border-radius: 12px; padding: 0 20px; font-size: 15px; font-weight: 650; cursor: pointer; }
+.pe-primary { border: 0; background: linear-gradient(135deg, #8b6cff, #6a45e6); color: #fff; box-shadow: 0 8px 20px rgba(106, 69, 230, .3); }
+.pe-primary:disabled { opacity: .6; cursor: wait; }
+.pe-ghost { border: 1px solid var(--pe-line); background: none; color: var(--pe-text); }
+.pe-password { border-top: 1px solid var(--pe-line); padding-top: 22px; }
+.pe-password h3 { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--pe-text); font-size: 16px; }
+
+/* Barcha select'lar: bir xil strelka, to'g'ri rang, ochiladigan ro'yxat ham mavzuga mos */
+.student-app select, .role-app select, .auth select {
+  appearance: none; -webkit-appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%239a9fbd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; background-size: 12px 8px; padding-right: 34px !important;
+}
+.student-app select option, .role-app select option, .auth select option { background: #151729; color: #f1f0ff; }
+.student-app[data-theme="light"] select option, .role-app[data-theme="light"] select option, .auth[data-theme="light"] select option { background: #fff; color: #25263a; }
+.student-app select:focus-visible, .role-app select:focus-visible { outline: 2px solid #8b6cff; outline-offset: 2px; }
+.student-app select:disabled, .role-app select:disabled { cursor: not-allowed; opacity: .6; }
+.student-app :is(.student-language-select, .subject-filter select, .settings-field select, .student-enrollment-form select),
+.role-app :is(.role-language select, .role-table-select, .role-create-form select, .role-settings select) {
+  min-height: 38px; border: 1px solid var(--pe-line); border-radius: 10px; background-color: var(--pe-field); color: var(--pe-text); font-size: 14px;
+}
+.student-app .subject-filter select { max-width: 240px; padding-left: 12px; }
+.role-app :is(.role-language select, .role-table-select) { padding-left: 10px; }
+.auth-tools select { appearance: none; padding-right: 30px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%239a9fbd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+.pe-row { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+@media (max-width: 480px) { .pe-row { grid-template-columns: 1fr; } }

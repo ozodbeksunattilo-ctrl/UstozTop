@@ -5,6 +5,7 @@ import ChatMessage from './components/ChatMessage.jsx'
 import TypingIndicator from './components/TypingIndicator.jsx'
 import WelcomeScreen from './components/WelcomeScreen.jsx'
 import { checkHealth, sendChat } from './lib/api.js'
+import './index.css'
 
 const STORAGE_KEY = 'ustoztop_ai_chat_v1'
 const MAX_HISTORY = 20
@@ -36,7 +37,7 @@ function loadMessages() {
   }
 }
 
-function App() {
+function App({ embedded = false, onBack }) {
   const [messages, setMessages] = useState(loadMessages)
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -186,14 +187,15 @@ function App() {
   }, [])
 
   return (
-    <div className="app-bg flex h-dvh flex-col overflow-hidden">
-      <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col overflow-hidden sm:px-4 sm:py-4 lg:px-6 lg:py-6">
+    <div className={`app-bg flex flex-col overflow-hidden ${embedded ? 'ai-embedded-app' : 'h-dvh'}`}>
+      <div className={`mx-auto flex w-full flex-1 flex-col overflow-hidden sm:px-4 sm:py-4 lg:px-6 lg:py-6 ${embedded ? 'max-w-none' : 'max-w-5xl'}`}>
         <div className="glass flex min-h-0 flex-1 flex-col overflow-hidden border-x-0 sm:rounded-3xl sm:border-x sm:shadow-2xl sm:shadow-black/40">
           <ChatHeader
             status={backend.status}
             model={backend.model}
             onClear={handleClear}
             hasMessages={messages.length > 0}
+            onBack={onBack}
           />
 
           {backend.status === 'unconfigured' && (

@@ -9,13 +9,17 @@ const STATUS_MAP = {
   unconfigured: { dot: 'bg-amber-400', ring: 'bg-amber-400/30', text: 'API kaliti sozlanmagan' },
 }
 
-export default function ChatHeader({ status, model, onClear, hasMessages }) {
+export default function ChatHeader({ status, model, onClear, hasMessages, onBack }) {
   const state = STATUS_MAP[status] || STATUS_MAP.checking
 
   return (
     <header className="ai-header flex items-center justify-between gap-3 border-b border-white/[0.07] bg-[#0a0b14]/70 px-4 py-3 backdrop-blur-xl sm:px-6 sm:py-3.5">
       <div className="flex min-w-0 items-center gap-3">
-        <a className="ai-back-link" href={DASHBOARD_URL} aria-label="O‘quvchi kabinetiga qaytish"><ArrowLeftIcon /><span>Kabinet</span></a>
+        {onBack ? (
+          <button type="button" className="ai-back-link" onClick={onBack} aria-label="O‘quvchi kabinetiga qaytish"><ArrowLeftIcon /><span>Kabinet</span></button>
+        ) : (
+          <a className="ai-back-link" href={DASHBOARD_URL} aria-label="O‘quvchi kabinetiga qaytish"><ArrowLeftIcon /><span>Kabinet</span></a>
+        )}
         <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 text-white shadow-lg shadow-violet-900/40">
           <LogoIcon className="h-6 w-6" />
           <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#0a0b14]">

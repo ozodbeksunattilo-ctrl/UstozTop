@@ -1,0 +1,40 @@
+/* Fan orqasidagi harakatlanuvchi fon: banner (to'liq) va karta (compact) uchun */
+.subject-backdrop { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.subject-backdrop:not(.subject-backdrop-compact) { left: 38%; }
+.subject-backdrop-glow { position: absolute; top: 50%; left: 62%; width: 240px; height: 200px; border-radius: 50%; background: var(--subject-accent); filter: blur(90px); opacity: .22; transform: translate(-50%, -50%); }
+.subject-backdrop-grid { position: absolute; inset: -20%; background-image: linear-gradient(color-mix(in srgb, var(--subject-accent) 14%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--subject-accent) 14%, transparent) 1px, transparent 1px); background-size: 28px 28px; mask-image: radial-gradient(ellipse at 62% 50%, #000, transparent 70%); animation: subject-grid 14s linear infinite; }
+.subject-orbit { position: absolute; top: 50%; left: 62%; width: 150px; height: 150px; border: 1px dashed color-mix(in srgb, var(--subject-accent) 38%, transparent); border-radius: 50%; transform: translate(-50%, -50%); animation: subject-spin 18s linear infinite; }
+.subject-orbit i { position: absolute; top: -4px; left: 50%; width: 8px; height: 8px; border-radius: 50%; background: var(--subject-accent); box-shadow: 0 0 14px var(--subject-accent); }
+.subject-orbit-2 { width: 240px; height: 240px; animation-duration: 28s; animation-direction: reverse; }
+.subject-float { position: absolute; color: color-mix(in srgb, var(--subject-accent) 75%, white); font-size: 13px; font-weight: 600; opacity: .6; white-space: nowrap; animation: subject-drift 8s ease-in-out infinite alternate; }
+.subject-float-1 { top: 18%; left: 8%; animation-delay: -2s; }
+.subject-float-2 { top: 22%; right: 6%; animation-delay: -5s; }
+.subject-float-3 { right: 14%; bottom: 16%; animation-delay: -3s; }
+.subject-float-4 { bottom: 12%; left: 12%; animation-delay: -6s; }
+.subject-float-5 { top: 8%; left: 48%; animation-delay: -1s; }
+.subject-backdrop-center { position: absolute; top: 50%; left: 62%; display: grid; width: 96px; height: 96px; place-items: center; border: 1px solid color-mix(in srgb, var(--subject-accent) 45%, transparent); border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--subject-accent) 22%, #151729), rgba(10, 12, 24, .25)); color: color-mix(in srgb, var(--subject-accent) 72%, white); font-size: 36px; transform: translate(-50%, -50%); animation: subject-pulse 5s ease-in-out infinite; }
+
+.subject-backdrop-compact .subject-backdrop-glow { left: 78%; width: 130px; height: 110px; filter: blur(44px); }
+.subject-backdrop-compact .subject-orbit { left: 80%; width: 74px; height: 74px; }
+.subject-backdrop-compact .subject-orbit-2 { width: 118px; height: 118px; }
+.subject-backdrop-compact .subject-float { font-size: 10px; opacity: .4; }
+.subject-backdrop-compact .subject-float-1 { top: 12%; left: 44%; }
+.subject-backdrop-compact .subject-float-2 { top: 20%; right: 6%; }
+.subject-backdrop-compact .subject-float-3 { right: 22%; bottom: 12%; }
+.subject-backdrop-compact .subject-float-4 { bottom: 10%; left: 52%; }
+.subject-backdrop-compact .subject-float-5 { display: none; }
+
+@keyframes subject-spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+@keyframes subject-grid { to { transform: translate3d(28px, 28px, 0); } }
+@keyframes subject-drift { from { transform: translate3d(0, 0, 0) rotate(-3deg); } to { transform: translate3d(9px, -13px, 0) rotate(3deg); } }
+@keyframes subject-pulse { 0%, 100% { box-shadow: 0 0 30px color-mix(in srgb, var(--subject-accent) 20%, transparent); } 50% { box-shadow: 0 0 52px color-mix(in srgb, var(--subject-accent) 34%, transparent); } }
+@media (max-width: 640px) { .subject-backdrop:not(.subject-backdrop-compact) { left: 20%; opacity: .55; } .subject-float { font-size: 11px; } }
+@media (prefers-reduced-motion: reduce) { .subject-backdrop, .subject-backdrop * { animation: none !important; } }
+
+/* karta ichida matn o'qilishi uchun fon yengilroq */
+.subject-backdrop-compact .subject-backdrop-grid { opacity: .5; }
+.subject-backdrop-compact .subject-float { opacity: .26; font-size: 10px; }
+.subject-backdrop-compact .subject-float-1 { top: 10%; left: auto; right: 34%; }
+.subject-backdrop-compact .subject-float-2 { top: 26%; right: 5%; }
+.subject-backdrop-compact .subject-float-3, .subject-backdrop-compact .subject-float-4 { display: none; }
+.subject-backdrop-compact .subject-orbit { opacity: .8; }

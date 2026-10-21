@@ -1,7 +1,7 @@
 import 'dotenv/config'
 
-const DEFAULT_MODEL = 'gemini-3.5-flash'
-const FALLBACK_MODELS = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3-flash-preview']
+const DEFAULT_MODEL = 'gemini-3.6-flash'
+const FALLBACK_MODELS = ['gemini-3.6-flash', 'gemini-3.5-flash-lite', 'gemini-2.5-flash']
 
 export const config = {
   apiKey: (process.env.GEMINI_API_KEY || '').trim(),

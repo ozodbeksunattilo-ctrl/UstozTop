@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-:root {
+.app-bg {
   color-scheme: dark;
 }
 
@@ -376,8 +376,10 @@ textarea {
   border-radius: .75rem;
   padding: .55rem .7rem;
   color: #c7c2df;
+  background: transparent;
   font-size: .8rem;
   text-decoration: none;
+  cursor: pointer;
   transition: border-color .18s ease, background .18s ease, color .18s ease;
 }
 
@@ -465,6 +467,10 @@ textarea {
 .ai-welcome-photo-hint span { display: inline-flex; align-items: center; gap: .4rem; }
 .ai-welcome-photo-hint svg { color: #b59af8; }
 .ai-welcome-photo-hint i { width: .25rem; height: .25rem; border-radius: 50%; background: #625d78; }
+
+.ai-embedded-app {
+  height: min(720px, max(480px, calc(100dvh - 190px)));
+}
 
 @media (max-width: 480px) {
   .ai-back-link { padding: .5rem; }

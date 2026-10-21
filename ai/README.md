@@ -22,7 +22,7 @@ ai/
 
 - **Backend:** Node.js, Express 5, `@google/genai` (rasmiy SDK), `cors`, `dotenv`
 - **Frontend:** React 19, Vite, Tailwind CSS 4, `marked` + `dompurify` (markdown)
-- **AI model:** `gemini-3.5-flash` (fallback: `gemini-3.5-flash-lite`, `gemini-3-flash-preview`)
+- **AI model:** `gemini-3.6-flash` (fallback: `gemini-3.5-flash-lite`, `gemini-2.5-flash`)
 
 ## Sozlash
 
@@ -43,7 +43,7 @@ cp .env.example .env
 
 ```env
 GEMINI_API_KEY=bu_yerga_api_kalitingizni_yozing
-GEMINI_MODEL=gemini-3.5-flash
+GEMINI_MODEL=gemini-3.6-flash
 PORT=8787
 ```
 
@@ -142,7 +142,7 @@ Backend quyidagi holatlarni ushlaydi va tushunarli xabar qaytaradi:
 | Muammo | Yechim |
 | ------ | ------ |
 | "API kaliti sozlanmagan" | `ai/backend/.env` ichiga `GEMINI_API_KEY` qo'shing va backendni qayta ishga tushiring |
-| "Model mavjud emas" | `GEMINI_MODEL` ni `gemini-3.5-flash` qilib o'rnating |
-| "Tanlangan model ... no longer available" | `.env` dagi modelni yangilang |
+| "Model mavjud emas" | `GEMINI_MODEL` ni `gemini-3.6-flash` qilib o'rnating |
+| "Tanlangan model ... no longer available" | `.env` dagi modelni `gemini-3.6-flash` qilib yangilang |
 | Frontend backendga ulanmayapti | Backend `8787`-portda ishlab turganini tekshiring |
 | "So'rovlar juda ko'p" | Bir daqiqa kutib, qayta urinib ko'ring |

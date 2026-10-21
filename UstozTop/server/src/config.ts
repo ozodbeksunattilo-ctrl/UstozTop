@@ -3,7 +3,7 @@ import 'dotenv/config'
 const env = process.env
 
 export const config = {
-  port: Number(env.PORT) || 4000,
+  port: Number(env.API_PORT) || 4000, // PORT ataylab o‘qilmaydi: eski .env da AI porti (8787) qolgan bo‘lishi mumkin
   isProduction: env.NODE_ENV === 'production',
   cookieSecure: env.COOKIE_SECURE === 'true',
   sessionDays: Number(env.SESSION_DAYS) || 7,

@@ -3,7 +3,7 @@ import {
   FiArrowRight, FiAward, FiBarChart2, FiBell, FiBookOpen, FiCalendar, FiCheckCircle, FiChevronRight, FiClock,
   FiGrid, FiLogOut, FiMenu, FiMoon, FiSun, FiUser, FiUsers, FiX, FiZap,
 } from 'react-icons/fi'
-import AiChat from '../../../ai/frontend/src/App.jsx'
+import AiChat from '../../ai/frontend/src/App.jsx'
 import { avatarStyle } from '../components/avatar.js'
 import { BrandName, LogoMark } from '../components/Brand.jsx'
 import Floaters from '../components/Floaters.jsx'

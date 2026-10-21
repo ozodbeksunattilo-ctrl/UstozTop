@@ -53,3 +53,13 @@
 .role-profile-link > span:last-child { display: grid; min-width: 0; text-align: left; }
 .role-profile-link strong { overflow: hidden; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
 .role-profile-link small { color: var(--role-muted); font-size: 12px; }
+
+/* Davomat: ✓ (keldi, yashil) va ✕ (kelmadi, qizil) tugmalari */
+.att-toggle { display: inline-flex; gap: 8px; }
+.att-btn { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid rgba(160, 165, 210, .3); border-radius: 10px; background: rgba(160, 165, 210, .12); color: rgba(160, 165, 210, .8); font-size: 18px; cursor: pointer; transition: background .15s, border-color .15s, color .15s, transform .1s; }
+.att-btn:hover { transform: translateY(-1px); }
+.att-btn:focus-visible { outline: 2px solid #8b6cff; outline-offset: 2px; }
+.att-yes.on { border-color: #47c995; background: #47c995; color: #fff; }
+.att-no.on { border-color: #ef5b6b; background: #ef5b6b; color: #fff; }
+.att-yes:not(.on):hover { border-color: #47c995; color: #47c995; }
+.att-no:not(.on):hover { border-color: #ef5b6b; color: #ef5b6b; }

@@ -286,7 +286,12 @@ function Grading({ language, onNotice }) {
                 return (
                   <tr key={student.id}>
                     <td><span className="ui-person"><Avatar name={student.fullName} color={student.avatarColor} size={32} /><strong>{student.fullName}</strong></span></td>
-                    <td><label className="switch"><input type="checkbox" checked={row.present} onChange={(event) => update(student.id, event.target.checked ? { present: true } : { present: false, activityScore: 0 })} aria-label={`${student.fullName}: ${t(language, 'Keldi')}`} /><i /></label></td>
+                    <td>
+                      <span className="att-toggle" role="group" aria-label={`${student.fullName}: ${t(language, 'Davomat')}`}>
+                        <button type="button" className={`att-btn att-yes${row.present ? ' on' : ''}`} aria-pressed={row.present} title={t(language, 'Keldi')} aria-label={`${student.fullName}: ${t(language, 'Keldi')}`} onClick={() => update(student.id, { present: true })}><FiCheck aria-hidden="true" /></button>
+                        <button type="button" className={`att-btn att-no${!row.present ? ' on' : ''}`} aria-pressed={!row.present} title={t(language, 'Kelmadi')} aria-label={`${student.fullName}: ${t(language, 'Kelmadi')}`} onClick={() => update(student.id, { present: false, activityScore: 0 })}><FiX aria-hidden="true" /></button>
+                      </span>
+                    </td>
                     <td><input className="score-input" type="number" min="0" max="10" value={row.present ? row.activityScore : 0} disabled={!row.present} title={row.present ? undefined : t(language, 'Kelmagan o‘quvchiga faollik bali qo‘yilmaydi')} onChange={(event) => update(student.id, { activityScore: clamp(event.target.value) })} aria-label={`${student.fullName}: ${t(language, 'Faollik')}`} /></td>
                     <td><input className="score-input" type="number" min="0" max="10" value={row.homeworkScore} onChange={(event) => update(student.id, { homeworkScore: clamp(event.target.value) })} aria-label={`${student.fullName}: ${t(language, 'Topshiriq')}`} /></td>
                     <td><input className="note-input" value={row.note} maxLength={300} onChange={(event) => update(student.id, { note: event.target.value })} aria-label={`${student.fullName}: ${t(language, 'Izoh')}`} /></td>

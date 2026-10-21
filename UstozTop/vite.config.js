@@ -4,9 +4,7 @@ import net from 'node:net'
 import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 
-const AI_PORT = 8787
 const API_PORT = 4000
-const DB_PORT = 5433
 
 const isPortOpen = (port) => new Promise((resolve) => {
   const socket = net.connect({ port, host: '127.0.0.1' })
@@ -15,7 +13,7 @@ const isPortOpen = (port) => new Promise((resolve) => {
   socket.setTimeout(1500, () => { socket.destroy(); resolve(false) })
 })
 
-// Dev server bilan birga yordamchi xizmatlarni ishga tushiradi (baza, API, AI).
+// Dev server bilan birga yordamchi xizmatlarni ishga tushiradi (API: JSON baza va AI chat bilan birga).
 // Port band bo'lsa — xizmat allaqachon ishlayapti, qayta ishga tushirilmaydi; o'chib qolsa o'zi tiklanadi.
 function supervise(server, { name, port, cwd, command, args, after }) {
   let child = null
@@ -42,9 +40,7 @@ function servicesPlugin() {
   return {
     name: 'ustoztop-services',
     configureServer(server) {
-      supervise(server, { name: 'PostgreSQL', port: DB_PORT, cwd: '../server', command: process.execPath, args: ['node_modules/tsx/dist/cli.mjs', 'scripts/dev-db.ts'] })
-      supervise(server, { name: 'UstozTop API', port: API_PORT, cwd: '../server', command: process.execPath, args: ['node_modules/tsx/dist/cli.mjs', 'src/index.ts'], after: DB_PORT })
-      supervise(server, { name: 'AI backend', port: AI_PORT, cwd: '../ai/backend', command: process.execPath, args: ['src/index.js'] })
+      supervise(server, { name: 'UstozTop API', port: API_PORT, cwd: '.', command: process.execPath, args: ['node_modules/tsx/dist/cli.mjs', 'server/src/index.ts'] })
     },
   }
 }
@@ -59,12 +55,9 @@ export default defineConfig({
   ],
   server: {
     fs: {
-      allow: ['..'],
+      allow: ['.'],
     },
     proxy: {
-      // AI chat alohida backend (Gemini) orqali; qolgan hamma /api so'rovlar asosiy serverga
-      '/api/chat': { target: `http://localhost:${AI_PORT}`, changeOrigin: true },
-      '/api/health': { target: `http://localhost:${AI_PORT}`, changeOrigin: true },
       '/api': { target: `http://localhost:${API_PORT}`, changeOrigin: true },
     },
   },

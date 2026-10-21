@@ -1,0 +1,92 @@
+// JSON ma'lumotlar bazasini saqlash: Vercel'da Upstash Redis (KV_REST_API_*), lokalda server/data/db.json fayli.
+// Har bir so'rov navbat bilan ishlaydi: yuklash -> bajarish -> o'zgargan bo'lsa saqlash.
+import type { NextFunction, Request, Response } from 'express'
+import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
+import { dirname, resolve } from 'node:path'
+import { store } from './jsondb.js'
+import { seedDatabase } from './seed.js'
+
+const KEY = 'ustoztop:db'
+const kvUrl = () => process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL
+const kvToken = () => process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN
+const filePath = () => resolve(process.env.DB_FILE || 'server/data/db.json')
+
+async function kv(command: unknown[]) {
+  const response = await fetch(kvUrl()!, { method: 'POST', headers: { Authorization: `Bearer ${kvToken()}` }, body: JSON.stringify(command) })
+  const data = (await response.json()) as { result?: unknown; error?: string }
+  if (!response.ok || data.error) throw new Error(`Upstash: ${data.error ?? response.status}`)
+  return data.result
+}
+
+async function readRaw(): Promise<string | null> {
+  if (kvUrl() && kvToken()) return ((await kv(['GET', KEY])) as string | null) ?? null
+  try {
+    return await readFile(filePath(), 'utf8')
+  } catch {
+    return null
+  }
+}
+
+async function writeRaw(json: string) {
+  if (kvUrl() && kvToken()) {
+    await kv(['SET', KEY, json])
+    return
+  }
+  const file = filePath()
+  await mkdir(dirname(file), { recursive: true })
+  await writeFile(`${file}.tmp`, json)
+  await rename(`${file}.tmp`, file)
+}
+
+export async function loadDatabase() {
+  const raw = await readRaw()
+  store.load(raw ? JSON.parse(raw) : null)
+  if (store.isEmpty()) {
+    // birinchi ishga tushirish: admin va demo ma'lumotlar
+    await seedDatabase({ demo: process.env.SEED_DEMO !== 'false' })
+  }
+}
+
+export async function saveDatabase() {
+  if (!store.isDirty()) return
+  await writeRaw(JSON.stringify(store.dump()))
+  store.clean()
+}
+
+let queue: Promise<void> = Promise.resolve()
+
+export function databaseSession(_req: Request, res: Response, next: NextFunction) {
+  const previous = queue
+  let release!: () => void
+  queue = new Promise<void>((resolveQueue) => (release = resolveQueue))
+  let released = false
+  const done = () => {
+    if (!released) {
+      released = true
+      release()
+    }
+  }
+  res.on('close', done)
+
+  previous
+    .then(async () => {
+      await loadDatabase()
+      // javob yuborilishidan oldin o'zgarishlar saqlanadi (serverless funksiya javobdan keyin to'xtab qolishi mumkin)
+      const end = res.end.bind(res) as (...args: unknown[]) => Response
+      res.end = ((...args: unknown[]) => {
+        saveDatabase().then(
+          () => end(...args),
+          (error) => {
+            console.error('[db] saqlab bo‘lmadi:', error)
+            end(...args)
+          },
+        )
+        return res
+      }) as Response['end']
+      next()
+    })
+    .catch((error) => {
+      done()
+      next(error)
+    })
+}

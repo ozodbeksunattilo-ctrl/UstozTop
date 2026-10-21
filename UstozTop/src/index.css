@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@source "../../ai/frontend/src";
+@source "../aiChat";
 
 html {
   min-width: 320px;

@@ -1,0 +1,1503 @@
+{
+  "User": {
+    "fields": {
+      "id": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "id"
+        }
+      },
+      "firstName": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "lastName": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "email": {
+        "type": "String",
+        "list": false,
+        "optional": true,
+        "scalar": true
+      },
+      "phone": {
+        "type": "String",
+        "list": false,
+        "optional": true,
+        "scalar": true
+      },
+      "passwordHash": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "role": {
+        "type": "Role",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "status": {
+        "type": "UserStatus",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "value": "ACTIVE"
+        }
+      },
+      "avatarColor": {
+        "type": "String",
+        "list": false,
+        "optional": true,
+        "scalar": true
+      },
+      "createdAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "now"
+        }
+      },
+      "updatedAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "updatedAt": true
+      },
+      "studentProfile": {
+        "type": "StudentProfile",
+        "list": false,
+        "optional": true,
+        "scalar": false
+      },
+      "teacherProfile": {
+        "type": "TeacherProfile",
+        "list": false,
+        "optional": true,
+        "scalar": false
+      },
+      "sessions": {
+        "type": "Session",
+        "list": true,
+        "optional": false,
+        "scalar": false
+      },
+      "resetTokens": {
+        "type": "PasswordResetToken",
+        "list": true,
+        "optional": false,
+        "scalar": false
+      },
+      "memberships": {
+        "type": "GroupMembership",
+        "list": true,
+        "optional": false,
+        "scalar": false
+      },
+      "assignments": {
+        "type": "TeacherAssignment",
+        "list": true,
+        "optional": false,
+        "scalar": false
+      },
+      "teachingSubjects": {
+        "type": "TeacherSubject",
+        "list": true,
+        "optional": false,
+        "scalar": false
+      },
+      "joinRequests": {
+        "type": "JoinRequest",
+        "list": true,
+        "optional": false,
+        "scalar": false
+      },
+      "attendances": {
+        "type": "Attendance",
+        "list": true,
+        "optional": false,
+        "scalar": false,
+        "relName": "AttendanceStudent"
+      },
+      "markedAttendances": {
+        "type": "Attendance",
+        "list": true,
+        "optional": false,
+        "scalar": false,
+        "relName": "AttendanceMarker"
+      },
+      "assessments": {
+        "type": "Assessment",
+        "list": true,
+        "optional": false,
+        "scalar": false,
+        "relName": "AssessmentStudent"
+      },
+      "givenAssessments": {
+        "type": "Assessment",
+        "list": true,
+        "optional": false,
+        "scalar": false,
+        "relName": "AssessmentTeacher"
+      },
+      "reviewsWritten": {
+        "type": "TeacherReview",
+        "list": true,
+        "optional": false,
+        "scalar": false,
+        "relName": "ReviewStudent"
+      },
+      "reviewsReceived": {
+        "type": "TeacherReview",
+        "list": true,
+        "optional": false,
+        "scalar": false,
+        "relName": "ReviewTeacher"
+      },
+      "notifications": {
+        "type": "Notification",
+        "list": true,
+        "optional": false,
+        "scalar": false
+      },
+      "auditLogs": {
+        "type": "AuditLog",
+        "list": true,
+        "optional": false,
+        "scalar": false
+      },
+      "aiConversations": {
+        "type": "AIConversation",
+        "list": true,
+        "optional": false,
+        "scalar": false
+      }
+    },
+    "uniques": [
+      [
+        "id"
+      ],
+      [
+        "email"
+      ],
+      [
+        "phone"
+      ]
+    ]
+  },
+  "StudentProfile": {
+    "fields": {
+      "userId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "user": {
+        "type": "User",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "fields": [
+          "userId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "Cascade"
+      },
+      "grade": {
+        "type": "String",
+        "list": false,
+        "optional": true,
+        "scalar": true
+      }
+    },
+    "uniques": [
+      [
+        "userId"
+      ]
+    ]
+  },
+  "TeacherProfile": {
+    "fields": {
+      "userId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "user": {
+        "type": "User",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "fields": [
+          "userId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "Cascade"
+      },
+      "bio": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "value": ""
+        }
+      },
+      "qualification": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "value": ""
+        }
+      },
+      "experienceYears": {
+        "type": "Int",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "value": 0
+        }
+      }
+    },
+    "uniques": [
+      [
+        "userId"
+      ]
+    ]
+  },
+  "Subject": {
+    "fields": {
+      "id": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "id"
+        }
+      },
+      "name": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "category": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "icon": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "value": "✦"
+        }
+      },
+      "color": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "value": "#8b6cff"
+        }
+      },
+      "symbols": {
+        "type": "String",
+        "list": true,
+        "optional": false,
+        "scalar": true
+      },
+      "topics": {
+        "type": "String",
+        "list": true,
+        "optional": false,
+        "scalar": true
+      },
+      "description": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "value": ""
+        }
+      },
+      "totalLessons": {
+        "type": "Int",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "value": 24
+        }
+      },
+      "active": {
+        "type": "Boolean",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "value": true
+        }
+      },
+      "createdAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "now"
+        }
+      },
+      "groups": {
+        "type": "Group",
+        "list": true,
+        "optional": false,
+        "scalar": false
+      },
+      "teachers": {
+        "type": "TeacherSubject",
+        "list": true,
+        "optional": false,
+        "scalar": false
+      }
+    },
+    "uniques": [
+      [
+        "id"
+      ],
+      [
+        "name"
+      ]
+    ]
+  },
+  "Group": {
+    "fields": {
+      "id": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "id"
+        }
+      },
+      "name": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "subjectId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "subject": {
+        "type": "Subject",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "fields": [
+          "subjectId"
+        ],
+        "references": [
+          "id"
+        ]
+      },
+      "lessonTime": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "value": "14:00"
+        }
+      },
+      "daysOfWeek": {
+        "type": "Int",
+        "list": true,
+        "optional": false,
+        "scalar": true
+      },
+      "capacity": {
+        "type": "Int",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "value": 20
+        }
+      },
+      "active": {
+        "type": "Boolean",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "value": true
+        }
+      },
+      "createdAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "now"
+        }
+      },
+      "teacherAssignment": {
+        "type": "TeacherAssignment",
+        "list": false,
+        "optional": true,
+        "scalar": false
+      },
+      "memberships": {
+        "type": "GroupMembership",
+        "list": true,
+        "optional": false,
+        "scalar": false
+      },
+      "joinRequests": {
+        "type": "JoinRequest",
+        "list": true,
+        "optional": false,
+        "scalar": false
+      },
+      "attendances": {
+        "type": "Attendance",
+        "list": true,
+        "optional": false,
+        "scalar": false
+      },
+      "assessments": {
+        "type": "Assessment",
+        "list": true,
+        "optional": false,
+        "scalar": false
+      }
+    },
+    "uniques": [
+      [
+        "id"
+      ]
+    ]
+  },
+  "TeacherAssignment": {
+    "fields": {
+      "id": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "id"
+        }
+      },
+      "groupId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "group": {
+        "type": "Group",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "fields": [
+          "groupId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "Cascade"
+      },
+      "teacherId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "teacher": {
+        "type": "User",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "fields": [
+          "teacherId"
+        ],
+        "references": [
+          "id"
+        ]
+      },
+      "assignedAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "now"
+        }
+      }
+    },
+    "uniques": [
+      [
+        "id"
+      ],
+      [
+        "groupId"
+      ]
+    ]
+  },
+  "TeacherSubject": {
+    "fields": {
+      "teacherId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "teacher": {
+        "type": "User",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "fields": [
+          "teacherId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "Cascade"
+      },
+      "subjectId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "subject": {
+        "type": "Subject",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "fields": [
+          "subjectId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "Cascade"
+      }
+    },
+    "uniques": [
+      [
+        "teacherId",
+        "subjectId"
+      ]
+    ]
+  },
+  "JoinRequest": {
+    "fields": {
+      "id": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "id"
+        }
+      },
+      "groupId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "group": {
+        "type": "Group",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "fields": [
+          "groupId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "Cascade"
+      },
+      "studentId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "student": {
+        "type": "User",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "fields": [
+          "studentId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "Cascade"
+      },
+      "status": {
+        "type": "JoinStatus",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "value": "PENDING"
+        }
+      },
+      "createdAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "now"
+        }
+      },
+      "decidedAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": true,
+        "scalar": true
+      }
+    },
+    "uniques": [
+      [
+        "id"
+      ],
+      [
+        "groupId",
+        "studentId"
+      ]
+    ]
+  },
+  "GroupMembership": {
+    "fields": {
+      "id": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "id"
+        }
+      },
+      "groupId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "group": {
+        "type": "Group",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "fields": [
+          "groupId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "Cascade"
+      },
+      "studentId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "student": {
+        "type": "User",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "fields": [
+          "studentId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "Cascade"
+      },
+      "joinedAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "now"
+        }
+      }
+    },
+    "uniques": [
+      [
+        "id"
+      ],
+      [
+        "groupId",
+        "studentId"
+      ]
+    ]
+  },
+  "Attendance": {
+    "fields": {
+      "id": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "id"
+        }
+      },
+      "groupId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "group": {
+        "type": "Group",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "fields": [
+          "groupId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "Cascade"
+      },
+      "studentId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "student": {
+        "type": "User",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "relName": "AttendanceStudent",
+        "fields": [
+          "studentId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "Cascade"
+      },
+      "date": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "present": {
+        "type": "Boolean",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "markedById": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "markedBy": {
+        "type": "User",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "relName": "AttendanceMarker",
+        "fields": [
+          "markedById"
+        ],
+        "references": [
+          "id"
+        ]
+      },
+      "createdAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "now"
+        }
+      }
+    },
+    "uniques": [
+      [
+        "id"
+      ],
+      [
+        "groupId",
+        "studentId",
+        "date"
+      ]
+    ]
+  },
+  "Assessment": {
+    "fields": {
+      "id": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "id"
+        }
+      },
+      "groupId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "group": {
+        "type": "Group",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "fields": [
+          "groupId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "Cascade"
+      },
+      "studentId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "student": {
+        "type": "User",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "relName": "AssessmentStudent",
+        "fields": [
+          "studentId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "Cascade"
+      },
+      "teacherId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "teacher": {
+        "type": "User",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "relName": "AssessmentTeacher",
+        "fields": [
+          "teacherId"
+        ],
+        "references": [
+          "id"
+        ]
+      },
+      "date": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "attendanceScore": {
+        "type": "Int",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "activityScore": {
+        "type": "Int",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "homeworkScore": {
+        "type": "Int",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "total": {
+        "type": "Int",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "note": {
+        "type": "String",
+        "list": false,
+        "optional": true,
+        "scalar": true
+      },
+      "createdAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "now"
+        }
+      },
+      "updatedAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "updatedAt": true
+      }
+    },
+    "uniques": [
+      [
+        "id"
+      ],
+      [
+        "groupId",
+        "studentId",
+        "date"
+      ]
+    ]
+  },
+  "TeacherReview": {
+    "fields": {
+      "id": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "id"
+        }
+      },
+      "studentId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "student": {
+        "type": "User",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "relName": "ReviewStudent",
+        "fields": [
+          "studentId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "Cascade"
+      },
+      "teacherId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "teacher": {
+        "type": "User",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "relName": "ReviewTeacher",
+        "fields": [
+          "teacherId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "Cascade"
+      },
+      "rating": {
+        "type": "Int",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "comment": {
+        "type": "String",
+        "list": false,
+        "optional": true,
+        "scalar": true
+      },
+      "createdAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "now"
+        }
+      }
+    },
+    "uniques": [
+      [
+        "id"
+      ],
+      [
+        "studentId",
+        "teacherId"
+      ]
+    ]
+  },
+  "Notification": {
+    "fields": {
+      "id": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "id"
+        }
+      },
+      "userId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "user": {
+        "type": "User",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "fields": [
+          "userId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "Cascade"
+      },
+      "title": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "body": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "read": {
+        "type": "Boolean",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "value": false
+        }
+      },
+      "dedupeKey": {
+        "type": "String",
+        "list": false,
+        "optional": true,
+        "scalar": true
+      },
+      "createdAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "now"
+        }
+      }
+    },
+    "uniques": [
+      [
+        "id"
+      ]
+    ]
+  },
+  "AuditLog": {
+    "fields": {
+      "id": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "id"
+        }
+      },
+      "actorId": {
+        "type": "String",
+        "list": false,
+        "optional": true,
+        "scalar": true
+      },
+      "actor": {
+        "type": "User",
+        "list": false,
+        "optional": true,
+        "scalar": false,
+        "fields": [
+          "actorId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "SetNull"
+      },
+      "action": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "entity": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "entityId": {
+        "type": "String",
+        "list": false,
+        "optional": true,
+        "scalar": true
+      },
+      "meta": {
+        "type": "Json",
+        "list": false,
+        "optional": true,
+        "scalar": true
+      },
+      "createdAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "now"
+        }
+      }
+    },
+    "uniques": [
+      [
+        "id"
+      ]
+    ]
+  },
+  "Session": {
+    "fields": {
+      "id": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "id"
+        }
+      },
+      "userId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "user": {
+        "type": "User",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "fields": [
+          "userId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "Cascade"
+      },
+      "tokenHash": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "expiresAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "createdAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "now"
+        }
+      },
+      "userAgent": {
+        "type": "String",
+        "list": false,
+        "optional": true,
+        "scalar": true
+      }
+    },
+    "uniques": [
+      [
+        "id"
+      ],
+      [
+        "tokenHash"
+      ]
+    ]
+  },
+  "PasswordResetToken": {
+    "fields": {
+      "id": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "id"
+        }
+      },
+      "userId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "user": {
+        "type": "User",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "fields": [
+          "userId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "Cascade"
+      },
+      "tokenHash": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "expiresAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "usedAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": true,
+        "scalar": true
+      },
+      "createdAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "now"
+        }
+      }
+    },
+    "uniques": [
+      [
+        "id"
+      ],
+      [
+        "tokenHash"
+      ]
+    ]
+  },
+  "AIConversation": {
+    "fields": {
+      "id": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "id"
+        }
+      },
+      "userId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "user": {
+        "type": "User",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "fields": [
+          "userId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "Cascade"
+      },
+      "title": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "value": "Yangi suhbat"
+        }
+      },
+      "subject": {
+        "type": "String",
+        "list": false,
+        "optional": true,
+        "scalar": true
+      },
+      "createdAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "now"
+        }
+      },
+      "messages": {
+        "type": "AIMessage",
+        "list": true,
+        "optional": false,
+        "scalar": false
+      }
+    },
+    "uniques": [
+      [
+        "id"
+      ]
+    ]
+  },
+  "AIMessage": {
+    "fields": {
+      "id": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "id"
+        }
+      },
+      "conversationId": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "conversation": {
+        "type": "AIConversation",
+        "list": false,
+        "optional": false,
+        "scalar": false,
+        "fields": [
+          "conversationId"
+        ],
+        "references": [
+          "id"
+        ],
+        "onDelete": "Cascade"
+      },
+      "role": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "content": {
+        "type": "String",
+        "list": false,
+        "optional": false,
+        "scalar": true
+      },
+      "createdAt": {
+        "type": "DateTime",
+        "list": false,
+        "optional": false,
+        "scalar": true,
+        "default": {
+          "fn": "now"
+        }
+      }
+    },
+    "uniques": [
+      [
+        "id"
+      ]
+    ]
+  }
+}

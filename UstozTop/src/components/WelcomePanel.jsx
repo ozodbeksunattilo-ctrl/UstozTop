@@ -1,14 +1,9 @@
 import { FiBookOpen, FiTrendingUp, FiZap } from 'react-icons/fi'
 import { translate as t } from '../i18n.js'
-import { BrandName, LogoMark } from './Brand.jsx'
 
 function WelcomePanel({ language }) {
   return (
     <section className="auth-hero">
-      <div className="auth-hero-logo">
-        <LogoMark size={84} />
-        <span><BrandName /><small className="auth-hero-tag">{t(language, 'Bilim bilan kelajak sari')}</small></span>
-      </div>
       <span className="auth-pill"><FiZap aria-hidden="true" /> {t(language, 'Bilim bilan kelajak sari')}</span>
       <h1>
         {t(language, 'Katta maqsadlar.')}<br />

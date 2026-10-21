@@ -22,7 +22,6 @@
 
 .auth-header { display: flex; width: 100%; max-width: 1280px; align-items: center; justify-content: space-between; margin: 0 auto; }
 .auth-brand { display: inline-flex; align-items: center; gap: 12px; color: var(--a-text); font-size: 18px; font-weight: 700; letter-spacing: -.02em; text-decoration: none; }
-.auth-brand img { width: 46px; height: 46px; border-radius: 12px; border: 1px solid var(--a-line); object-fit: cover; }
 .auth-tools { display: flex; align-items: center; gap: 10px; }
 .auth-tools select, .auth-theme { height: 38px; border: 1px solid var(--a-line); border-radius: 11px; background: var(--a-card); color: var(--a-text); font-size: 14px; backdrop-filter: blur(12px); }
 .auth-tools select { padding: 0 10px; outline: none; }

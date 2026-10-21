@@ -10,7 +10,7 @@ function AuthHeader({ language, onLanguageChange, theme, onThemeToggle }) {
   return (
     <header className="auth-header">
       <a href="/" className="auth-brand" aria-label={`UstozTop ${t(language, 'Bosh sahifa')}`}>
-        <LogoMark size={68} />
+        <LogoMark size={104} />
         <BrandName />
       </a>
 

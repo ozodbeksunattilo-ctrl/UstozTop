@@ -9,7 +9,7 @@
   background: linear-gradient(100deg, #c4afff 0%, #8b6cff 48%, #38d0e0 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 [data-theme="light"] .brand-name { background-image: linear-gradient(100deg, #6a45e6 0%, #5f3ce0 50%, #38d0e0 100%); }
-.auth-brand .brand-name { font-size: clamp(32px, 3.6vw, 46px); }
+.auth-brand .brand-name { font-size: clamp(36px, 4.4vw, 56px); }
 .student-brand .brand-name { font-size: 26px; }
 .role-head-brand .brand-name { font-size: 25px; }
 .role-brand .brand-name { font-size: 26px; }
@@ -161,4 +161,4 @@
 .student-top-actions, .student-topbar-inner { min-width: 0; }
 @media (max-width: 1280px) { .student-nav-link { padding: 0 10px; } .student-nav-link span { font-size: 14px; } }
 @media (max-width: 1100px) { .student-nav-link span { display: none; } }
-@media (max-width: 640px) { .auth-brand .logo-mark { width: 52px !important; height: 52px !important; } }
+@media (max-width: 640px) { .auth-brand .logo-mark { width: 76px !important; height: 76px !important; } }

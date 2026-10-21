@@ -1,0 +1,41 @@
+# Render Blueprint: API (Express + Prisma) va AI backend. Frontend Vercel'da, /api so'rovlari vercel.json orqali shu yerga yo'naltiriladi.
+databases:
+  - name: ustoztop-db
+    plan: free
+    databaseName: ustoztop
+    user: ustoztop
+
+services:
+  - type: web
+    name: ustoztop-api
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm ci && npx prisma generate && npx prisma db push && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/status
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ustoztop-db
+          property: connectionString
+      - key: ADMIN_EMAIL
+        value: admin@ustoztop.uz
+      - key: ADMIN_PASSWORD
+        generateValue: true
+
+  - type: web
+    name: ustoztop-ai
+    runtime: node
+    plan: free
+    rootDir: ai/backend
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false

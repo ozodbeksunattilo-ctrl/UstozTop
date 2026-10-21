@@ -9,7 +9,7 @@
   background: linear-gradient(100deg, #c4afff 0%, #8b6cff 48%, #38d0e0 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 [data-theme="light"] .brand-name { background-image: linear-gradient(100deg, #6a45e6 0%, #5f3ce0 50%, #38d0e0 100%); }
-.auth-brand .brand-name { font-size: clamp(28px, 3.2vw, 40px); }
+.auth-brand .brand-name { font-size: clamp(32px, 3.6vw, 46px); }
 .student-brand .brand-name { font-size: 26px; }
 .role-head-brand .brand-name { font-size: 25px; }
 .role-brand .brand-name { font-size: 26px; }
@@ -117,7 +117,7 @@
 /* ---- Auth: katta brend va logotip ---- */
 .auth-hero-logo { display: flex; align-items: center; gap: 18px; margin-bottom: 26px; animation: auth-rise .7s ease both; }
 .auth-hero-logo .brand-name { font-size: clamp(44px, 6vw, 76px); }
-.auth-hero-logo .logo-mark { animation: logo-glow 5s ease-in-out infinite alternate; }
+.auth-brand .logo-mark, .auth-hero-logo .logo-mark { animation: logo-glow 5s ease-in-out infinite alternate; }
 @keyframes logo-glow { from { box-shadow: 0 0 0 1px rgba(139, 108, 255, .5), 0 8px 30px rgba(139, 108, 255, .15); } to { box-shadow: 0 0 0 1px rgba(139, 108, 255, .9), 0 8px 44px rgba(139, 108, 255, .45); } }
 .auth-hero-tag { display: block; margin-top: 6px; color: var(--a-muted); font-family: Georgia, serif; font-size: clamp(14px, 1.4vw, 18px); font-style: italic; letter-spacing: .02em; }
 @media (max-width: 640px) { .auth-hero-logo { margin-bottom: 14px; gap: 12px; } .auth-hero-logo .logo-mark { width: 56px !important; height: 56px !important; } }
@@ -161,3 +161,4 @@
 .student-top-actions, .student-topbar-inner { min-width: 0; }
 @media (max-width: 1280px) { .student-nav-link { padding: 0 10px; } .student-nav-link span { font-size: 14px; } }
 @media (max-width: 1100px) { .student-nav-link span { display: none; } }
+@media (max-width: 640px) { .auth-brand .logo-mark { width: 52px !important; height: 52px !important; } }

@@ -11,7 +11,7 @@ const DEMO_ACCOUNTS = [
 ]
 
 const HEADINGS = {
-  login: ['Yana xush kelibsiz.', 'Davom etish uchun hisobingizga kiring.'],
+  login: ['Xush kelibsiz.', 'Davom etish uchun hisobingizga kiring.'],
   register: ['Yangi hisob yarating.', 'O‘quvchi sifatida ro‘yxatdan o‘ting.'],
   forgot: ['Parolni tiklash', 'Email yoki telefon raqamingizni kiriting.'],
   reset: ['Yangi parol o‘rnating', 'Yangi parolni ikki marta kiriting.'],

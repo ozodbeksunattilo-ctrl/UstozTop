@@ -1,7 +1,8 @@
 import 'dotenv/config'
 
-const DEFAULT_MODEL = 'gemini-3.6-flash'
-const FALLBACK_MODELS = ['gemini-3.6-flash', 'gemini-3.5-flash-lite', 'gemini-2.5-flash']
+// Eng tez model birinchi turadi; sekin yoki band bo'lsa keyingisiga o'tiladi.
+const DEFAULT_MODEL = 'gemini-3.5-flash'
+const FALLBACK_MODELS = ['gemini-3.5-flash-lite', 'gemini-3.6-flash', 'gemini-2.5-flash']
 
 export const config = {
   apiKey: (process.env.GEMINI_API_KEY || '').trim(),
@@ -15,6 +16,7 @@ export const config = {
   ],
   fallbackModels: FALLBACK_MODELS,
   maxMessageLength: 8000,
-  maxHistoryMessages: 20,
-  requestTimeoutMs: 60000,
+  maxHistoryMessages: 12,
+  maxOutputTokens: 1400,
+  requestTimeoutMs: 22000,
 }

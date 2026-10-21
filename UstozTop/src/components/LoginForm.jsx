@@ -12,7 +12,7 @@ const DEMO_ACCOUNTS = [
 
 const HEADINGS = {
   login: ['Yana xush kelibsiz.', 'Davom etish uchun hisobingizga kiring.'],
-  register: ['Yangi hisob yarating.', 'O‘quvchi yoki ustoz sifatida ro‘yxatdan o‘ting.'],
+  register: ['Yangi hisob yarating.', 'O‘quvchi sifatida ro‘yxatdan o‘ting.'],
   forgot: ['Parolni tiklash', 'Email yoki telefon raqamingizni kiriting.'],
   reset: ['Yangi parol o‘rnating', 'Yangi parolni ikki marta kiriting.'],
 }
@@ -142,15 +142,6 @@ function LoginForm({ onAuthenticated, language, path }) {
                 <input value={form.lastName} onChange={set('lastName')} placeholder={t(language, 'Familiyangiz')} autoComplete="family-name" required minLength={2} />
               </Field>
             </div>
-            <fieldset className="auth-roles">
-              <legend>{t(language, 'Platformadagi rolingiz')}</legend>
-              {[['STUDENT', 'O‘quvchi'], ['TEACHER', 'Ustoz']].map(([value, label]) => (
-                <label key={value} className={form.role === value ? 'is-active' : ''}>
-                  <input type="radio" name="role" value={value} checked={form.role === value} onChange={set('role')} />
-                  {t(language, label)}
-                </label>
-              ))}
-            </fieldset>
           </>
         )}
 
@@ -201,8 +192,8 @@ function LoginForm({ onAuthenticated, language, path }) {
         <button type="button" className="auth-link" onClick={() => changeMode('login')}>{t(language, 'Kirishga qaytish')}</button>
       )}
 
-      {isRegister && form.role === 'TEACHER' && (
-        <p className="auth-note"><FiInfo aria-hidden="true" size={16} /><span>{t(language, 'Ustoz akkaunti administrator tasdiqlagunga qadar cheklangan holatda turadi.')}</span></p>
+      {isRegister && (
+        <p className="auth-note auth-note-strong"><FiInfo aria-hidden="true" size={16} /><span>{t(language, 'Ustoz akkauntlarini faqat administrator yaratadi. Login va parolni administratordan oling.')}</span></p>
       )}
 
       {mode === 'login' && (

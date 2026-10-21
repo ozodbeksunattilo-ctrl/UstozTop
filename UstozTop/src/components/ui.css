@@ -32,7 +32,7 @@
 .ui-select:focus { border-color: #8b6cff; }
 .ui-seg { display: inline-flex; gap: 4px; border: 1px solid var(--ui-line); border-radius: 12px; background: var(--ui-field); padding: 4px; }
 .ui-seg button { min-height: 36px; border: 0; border-radius: 9px; background: none; padding: 0 16px; color: var(--ui-muted); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
-.ui-seg button.is-active { background: linear-gradient(135deg, #8b6cff, #6a45e6); color: #fff; }
+.ui-seg button.is-active { background: linear-gradient(135deg, #8b6cff, #5f3ce0); color: #fff; }
 
 .ui-table-wrap { overflow-x: auto; }
 .ui-table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -48,7 +48,7 @@
 .ui-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; border: 1px solid var(--ui-line); border-radius: 11px; background: none; padding: 0 16px; color: var(--ui-text); font: inherit; font-size: 14px; font-weight: 650; cursor: pointer; transition: border-color .2s, opacity .2s; }
 .ui-btn:hover:not(:disabled) { border-color: #8b6cff; }
 .ui-btn:disabled { cursor: not-allowed; opacity: .55; }
-.ui-btn-primary { border: 0; background: linear-gradient(135deg, #8b6cff, #6a45e6); color: #fff; box-shadow: 0 8px 20px rgba(106, 69, 230, .28); }
+.ui-btn-primary { border: 0; background: linear-gradient(135deg, #8b6cff, #5f3ce0); color: #fff; box-shadow: 0 8px 20px rgba(95, 60, 224, .28); }
 .ui-btn-danger { border-color: rgba(255, 122, 147, .5); color: #ff8da1; }
 .ui-btn-success { border-color: rgba(71, 201, 149, .5); color: #47c995; }
 .ui-btn-sm { min-height: 34px; padding: 0 12px; font-size: 13px; }
@@ -73,5 +73,5 @@
 .ui-stack { display: grid; gap: 20px; }
 .ui-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
 .ui-bar { display: block; overflow: hidden; height: 8px; border-radius: 8px; background: rgba(160, 165, 210, .16); }
-.ui-bar > i { display: block; height: 100%; border-radius: inherit; background: var(--bar, linear-gradient(90deg, #8b6cff, #38d0e0)); }
+.ui-bar > i { display: block; height: 100%; border-radius: inherit; background: var(--bar, linear-gradient(90deg, #8b6cff, #3cc3c8)); }
 @media (max-width: 480px) { .ui-form-row { grid-template-columns: 1fr; } .ui-dialog { padding: 18px; } .ui-seg button { padding: 0 12px; } }

@@ -71,26 +71,18 @@ authRouter.post('/register', registerLimiter, async (req, res) => {
   const existing = await prisma.user.findFirst({ where: { OR: [contact.email ? { email: contact.email } : {}, contact.phone ? { phone: contact.phone } : {}].filter((item) => Object.keys(item).length) } })
   if (existing) throw conflict(contact.email ? 'Bu email bilan akkaunt mavjud.' : 'Bu telefon raqam bilan akkaunt mavjud.')
 
-  const isTeacher = data.role === 'TEACHER'
   const user = await prisma.user.create({
     data: {
       firstName: data.firstName,
       lastName: data.lastName,
       ...contact,
       passwordHash: await hashPassword(data.password),
-      role: data.role,
-      // Ustoz admin tasdig'igacha cheklangan holatda turadi.
-      status: isTeacher ? 'PENDING' : 'ACTIVE',
-      ...(isTeacher ? { teacherProfile: { create: {} } } : { studentProfile: { create: {} } }),
+      role: 'STUDENT',
+      status: 'ACTIVE',
+      studentProfile: { create: {} },
     },
     include: { studentProfile: true },
   })
-  if (isTeacher) {
-    const admins = await prisma.user.findMany({ where: { role: 'ADMIN', status: 'ACTIVE' }, select: { id: true } })
-    await prisma.notification.createMany({
-      data: admins.map((admin) => ({ userId: admin.id, title: 'Yangi ustoz so‘rovi', body: `${user.firstName} ${user.lastName} ustoz sifatida ro‘yxatdan o‘tdi va tasdiq kutmoqda.` })),
-    })
-  }
   await audit(user.id, 'user.register', 'User', user.id, { role: user.role })
   await startSession(req, res, user.id)
   res.status(201).json({ user: publicUser(user) })

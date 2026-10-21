@@ -46,6 +46,70 @@ const QUALIFICATION: Record<string, string> = {
   'nigora-karimova': 'Tarix va ijtimoiy fanlar mutaxassisi · Samarqand davlat universiteti',
 }
 
+const DESCRIPTIONS: Record<string, string> = {
+  'Matematika': 'Sonlar, tenglamalar va shakllar olamiga amaliy misollar orqali kirasiz. Har bir mavzu mashq va nazorat bilan mustahkamlanadi.',
+  'Ingliz tili': 'Gapirish, tinglash, o‘qish va yozishni birga rivojlantiramiz. Dars davomida jonli suhbat va kundalik lug‘at ustuvor.',
+  'Fizika': 'Tabiat qonunlarini tajriba va hisob-kitob bilan tushunasiz: harakatdan elektr va yorug‘likkacha.',
+  'O‘zbekiston tarixi': 'Qadimgi davrdan bugungacha bo‘lgan yo‘l: voqealar, shaxslar va ularning bugunga ta’siri.',
+  'Kimyo': 'Moddalar va ularning o‘zgarishi: formulalar, reaksiyalar va laboratoriya mantig‘i sodda tilda.',
+  'Biologiya': 'Hujayradan ekotizimgacha: tirik tabiat tuzilishi, odam organizmi va irsiyat qonunlari.',
+  'Ona tili': 'To‘g‘ri yozish va ravon so‘zlash: imlo, grammatika va matn ustida ishlash.',
+  'Adabiyot': 'Mumtoz va zamonaviy asarlarni o‘qish, tahlil qilish va o‘z fikrini asoslashni o‘rganasiz.',
+  'Geografiya': 'Xarita, iqlim va mintaqalar: dunyo va O‘zbekiston tabiatini bog‘lab tushunish.',
+  'Informatika': 'Algoritmik fikrlash va dasturlash asoslari, ma’lumotlar bilan ishlash va raqamli xavfsizlik.',
+  'Rus tili': 'Grammatika va og‘zaki nutq: kundalik muloqot, o‘qish va yozish ko‘nikmalari.',
+  'Huquq asoslari': 'Fuqarolik huquq va majburiyatlari, davlat tuzilishi va qonun bilan hayotiy vaziyatlar.',
+  'Chizmachilik': 'Shakllarni to‘g‘ri tasvirlash, proyeksiya va texnik chizma o‘qish.',
+  'Musiqa madaniyati': 'Ohang, ritm va maqom san’ati: tinglash, tahlil qilish va ijro etish.',
+  'Jismoniy tarbiya': 'Salomatlik, chidamlilik va jamoaviy o‘yinlar: to‘g‘ri mashq va sog‘lom odatlar.',
+}
+
+// Har bir fan o'z vaqt katagiga ega: hech bir o'quvchi yoki ustozda dars vaqti to'qnashmaydi.
+const SLOT_TIMES = ['09:00', '10:30', '12:00', '14:00', '15:30', '17:00', '18:30', '20:00']
+const slotFor = (index: number) => ({ lessonTime: SLOT_TIMES[index % SLOT_TIMES.length], daysOfWeek: index < SLOT_TIMES.length ? [1, 3, 5] : [2, 4, 6] })
+
+const REVIEWS = [
+  'Murakkab mavzuni oddiy misollar bilan tushuntirib beradi.',
+  'Darslar qiziqarli, uyga vazifalar aniq va foydali.',
+  'Savol bersam sabr bilan qayta tushuntiradi. Rahmat!',
+  'Har darsda amaliy mashqlar ko‘p, natijani sezyapman.',
+  'Juda talabchan, lekin shu sabab tez o‘rganyapman.',
+  'Dars tempi menga mos, mavzular ketma-ket va tushunarli.',
+  'Natijalarni doim izohlab beradi, qayerda xato qilganimni ko‘raman.',
+  'Ba’zan dars biroz tez o‘tadi, lekin umuman yaxshi.',
+]
+
+// Oxirgi n ta dars sanasi: faqat guruh jadvalidagi hafta kunlariga mos (bugundan oldin).
+function lessonDatesFor(daysOfWeek: number[], count: number) {
+  const dates: Date[] = []
+  const now = new Date()
+  for (let back = 1; dates.length < count && back < 60; back += 1) {
+    const date = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() - back))
+    if (daysOfWeek.includes(date.getUTCDay())) dates.push(date)
+  }
+  return dates
+}
+
+// Mavjud ma'lumotlarni yangilaydi: fan tavsifi va ustoz-fan bog'lanishi (guruhlariga qarab). Qayta ishga tushirish xavfsiz.
+async function backfill() {
+  // demo ustozlar faol; tasdiq kutuvchi namuna ustoz (endi ustoz o'zi ro'yxatdan o'tmaydi) olib tashlanadi
+  await prisma.user.updateMany({ where: { email: { in: TEACHERS.map((teacher) => teacher.email) } }, data: { status: 'ACTIVE' } })
+  await prisma.user.deleteMany({ where: { email: 'bobur@ustoztop.uz', status: 'PENDING' } })
+  // @ts-ignore — JS modul
+  const catalog = (await import('./demoCatalog.mjs')) as { subjects: { name: string; symbols: string[] }[] }
+  for (const [index, item] of catalog.subjects.entries()) {
+    await prisma.subject.updateMany({ where: { name: item.name }, data: { symbols: item.symbols } })
+    const slot = slotFor(index)
+    const group = await prisma.group.findFirst({ where: { subject: { name: item.name }, name: { startsWith: `${item.name} · ` } }, orderBy: { createdAt: 'asc' } })
+    if (group) await prisma.group.update({ where: { id: group.id }, data: { ...slot, name: `${item.name} · ${slot.lessonTime} guruhi` } })
+  }
+  for (const [name, description] of Object.entries(DESCRIPTIONS)) {
+    await prisma.subject.updateMany({ where: { name, description: '' }, data: { description } })
+  }
+  const assignments = await prisma.teacherAssignment.findMany({ include: { group: { select: { subjectId: true } } } })
+  await prisma.teacherSubject.createMany({ data: assignments.map((item) => ({ teacherId: item.teacherId, subjectId: item.group.subjectId })), skipDuplicates: true })
+}
+
 async function main() {
   // 1) Birinchi admin — faqat server tomonida (oddiy Register orqali admin yaratib bo'lmaydi)
   await prisma.user.upsert({
@@ -57,7 +121,8 @@ async function main() {
 
   if (process.env.SEED_DEMO === 'false') return
   if ((await prisma.subject.count()) > 0) {
-    console.log('Demo ma’lumotlar allaqachon mavjud — o‘tkazib yuborildi.')
+    await backfill()
+    console.log('Demo ma’lumotlar allaqachon mavjud — fan tavsiflari va ustoz fanlari yangilandi.')
     return
   }
 
@@ -83,29 +148,24 @@ async function main() {
     })
     teacherIds.set(teacher.key, user.id)
   }
-  // admin tasdig'ini kutayotgan ustoz (namuna)
-  await prisma.user.create({
-    data: { firstName: 'Bobur', lastName: 'Tursunov', email: 'bobur@ustoztop.uz', passwordHash: teacherPassword, role: 'TEACHER', status: 'PENDING', teacherProfile: { create: { qualification: 'Informatika bakalavri', experienceYears: 2 } } },
-  })
 
-  const times = ['10:00', '14:00', '16:00', '18:00']
-  const groups: { id: string; teacherId: string; subjectName: string }[] = []
+  const groups: { id: string; teacherId: string; subjectName: string; daysOfWeek: number[] }[] = []
   for (const [index, subject] of data.subjects.entries()) {
     const created = await prisma.subject.create({
       data: { name: subject.name, category: subject.category, icon: subject.icon, color: subject.color, symbols: subject.symbols, topics: subject.topics, totalLessons: subject.total },
     })
     const teacherId = teacherIds.get(subject.teacherId)!
+    const slot = slotFor(index)
     const group = await prisma.group.create({
       data: {
-        name: `${subject.name} · ${5 + (index % 7)}-sinf`,
+        name: `${subject.name} · ${slot.lessonTime} guruhi`,
         subjectId: created.id,
-        lessonTime: times[index % times.length],
-        daysOfWeek: index % 2 ? [2, 4, 6] : [1, 3, 5],
+        ...slot,
         capacity: 20,
         teacherAssignment: { create: { teacherId } },
       },
     })
-    groups.push({ id: group.id, teacherId, subjectName: subject.name })
+    groups.push({ id: group.id, teacherId, subjectName: subject.name, daysOfWeek: group.daysOfWeek })
   }
 
   // 3) Demo o'quvchilar, a'zolik, davomat va baholar
@@ -119,21 +179,16 @@ async function main() {
     students.push(student.id)
   }
 
-  const today = new Date()
-  const lessonDates = Array.from({ length: 6 }, (_, index) => {
-    const date = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate() - (index + 1) * 2))
-    return date
-  })
-
   for (const [studentIndex, studentId] of students.entries()) {
     const joined = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].filter((groupIndex) => (groupIndex + studentIndex) % 5 < 3).slice(0, 4)
     for (const groupIndex of joined) {
       const group = groups[groupIndex]
       await prisma.groupMembership.create({ data: { groupId: group.id, studentId } })
-      for (const date of lessonDates) {
+      for (const date of lessonDatesFor(group.daysOfWeek, 6)) {
         const present = random() > 0.15
         await prisma.attendance.create({ data: { groupId: group.id, studentId, date, present, markedById: group.teacherId } })
-        const activityScore = present ? 5 + Math.floor(random() * 6) : Math.floor(random() * 4)
+        // kelmagan o'quvchiga faollik bali qo'yilmaydi
+        const activityScore = present ? 5 + Math.floor(random() * 6) : 0
         const homeworkScore = 4 + Math.floor(random() * 7)
         const attendanceScore = present ? 10 : 0
         await prisma.assessment.create({
@@ -151,9 +206,10 @@ async function main() {
       const teacherId = membership.group.teacherAssignment?.teacherId
       if (!teacherId || seen.has(teacherId)) continue
       seen.add(teacherId)
-      await prisma.teacherReview.create({ data: { studentId, teacherId, rating: 4 + ((studentIndex + seen.size) % 2), comment: 'Tushunarli va qiziqarli dars o‘tadi.' } })
+      await prisma.teacherReview.create({ data: { studentId, teacherId, rating: 4 + ((studentIndex + seen.size) % 2), comment: REVIEWS[(studentIndex + seen.size) % REVIEWS.length] } })
     }
   }
+  await backfill()
   console.log(`Demo ma’lumotlar yaratildi: ${data.subjects.length} fan, ${groups.length} guruh, ${students.length} o‘quvchi.`)
   console.log(`Ustoz: ustoz@ustoztop.uz / ${TEACHER_PASSWORD} · O‘quvchi: aziz@ustoztop.uz / ${STUDENT_PASSWORD}`)
 }

@@ -2,7 +2,7 @@ import { LogoIcon } from './Icons.jsx'
 
 export default function TypingIndicator() {
   return (
-    <div className="message-in flex gap-3" aria-live="polite" aria-label="Ustoz yordamchi javob yozmoqda">
+    <div className="message-in flex gap-3" aria-live="polite" aria-label="UstozTop AI javob yozmoqda">
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 text-white shadow-lg shadow-violet-900/30">
         <LogoIcon className="h-[18px] w-[18px]" />
       </div>

@@ -1,9 +1,12 @@
+import type { Prisma } from '@prisma/client'
 import { Router } from 'express'
 import { z } from 'zod'
 import { config } from '../config.js'
 import { badRequest, forbidden, notFound } from '../lib/http.js'
 import { prisma } from '../lib/prisma.js'
 import { clampScore, startOfDay, todayUTC } from '../lib/ranking.js'
+import { notifyOnce } from '../lib/notify.js'
+import { assertStudentFree } from '../lib/schedule.js'
 import { studentBoard } from '../lib/stats.js'
 import { assessmentSchema, attendanceSchema, splitIdentifier, teacherProfileSchema } from '../lib/validation.js'
 import { requireRole } from '../middleware/auth.js'
@@ -34,7 +37,9 @@ teacherRouter.get('/overview', async (req, res) => {
     prisma.teacherReview.aggregate({ where: { teacherId }, _avg: { rating: true }, _count: { _all: true } }),
   ])
   const today = new Date().getDay()
+  const pendingRequests = await prisma.joinRequest.count({ where: { status: 'PENDING', groupId: { in: groupIds } } })
   res.json({
+    pendingRequests,
     groupCount: groups.length,
     studentCount: groups.reduce((sum, group) => sum + group._count.memberships, 0),
     attendancePercent: total ? Math.round((present / total) * 100) : 0,
@@ -42,7 +47,7 @@ teacherRouter.get('/overview', async (req, res) => {
     assessmentCount: assessments._count._all,
     rating: review._avg.rating ? Math.round(review._avg.rating * 10) / 10 : 0,
     reviewCount: review._count._all,
-    todayGroups: groups.filter((group) => group.daysOfWeek.includes(today)).map((group) => ({ id: group.id, name: group.name, subject: group.subject.name, lessonTime: group.lessonTime })),
+    todayGroups: groups.filter((group) => group.daysOfWeek.includes(today)).map((group) => ({ id: group.id, memberCount: group._count.memberships, name: group.name, subject: group.subject.name, lessonTime: group.lessonTime })),
   })
 })
 
@@ -165,22 +170,34 @@ teacherRouter.put('/groups/:id/attendance', async (req, res) => {
   const date = startOfDay(data.date)
   await prisma.$transaction(
     data.records.flatMap((record) => {
-      const ops = [
+      const ops: Prisma.PrismaPromise<unknown>[] = [
         prisma.attendance.upsert({
           where: { groupId_studentId_date: { groupId: group.id, studentId: record.studentId, date } },
           create: { groupId: group.id, studentId: record.studentId, date, present: record.present, markedById: req.user!.id },
           update: { present: record.present, markedById: req.user!.id },
         }),
       ]
-      // shu kunga baho kiritilgan bo'lsa, qatnashish bali davomatga moslab yangilanadi
+      // Davomat belgilanishi bilan o'sha kunga baho yozuvi ham yaratiladi/yangilanadi:
+      // keldi = 10 ball, kelmadi = 0. Faollik va topshiriq bali keyin qo'yiladi — ball o'quvchi kabinetida darhol ko'rinadi.
+      const attendanceScore = record.present ? config.maxCriterionScore : 0
+      ops.push(
+        prisma.assessment.upsert({
+          where: { groupId_studentId_date: { groupId: group.id, studentId: record.studentId, date } },
+          create: { groupId: group.id, studentId: record.studentId, teacherId: req.user!.id, date, attendanceScore, activityScore: 0, homeworkScore: 0, total: attendanceScore },
+          update: { attendanceScore, teacherId: req.user!.id },
+        }),
+      )
       return ops
     }),
   )
-  const existing = await prisma.assessment.findMany({ where: { groupId: group.id, date, studentId: { in: data.records.map((record) => record.studentId) } } })
-  for (const assessment of existing) {
-    const present = data.records.find((record) => record.studentId === assessment.studentId)?.present
-    const attendanceScore = present ? config.maxCriterionScore : 0
-    await prisma.assessment.update({ where: { id: assessment.id }, data: { attendanceScore, total: attendanceScore + assessment.activityScore + assessment.homeworkScore } })
+  // update total: qatnashish bali o'zgarganda yig'indi ham moslanadi
+  const rows = await prisma.assessment.findMany({ where: { groupId: group.id, date, studentId: { in: data.records.map((record) => record.studentId) } } })
+  await prisma.$transaction(rows.map((row) => prisma.assessment.update({ where: { id: row.id }, data: { total: row.attendanceScore + row.activityScore + row.homeworkScore } })))
+  const absent = data.records.filter((record) => !record.present)
+  if (absent.length) {
+    await notifyOnce(
+      absent.map((record) => ({ userId: record.studentId, title: 'Darsga kelmadingiz', body: `${group.subject.name}: ${data.date} kungi darsda qatnashmagan deb belgilandingiz.`, dedupeKey: `absent:${group.id}:${record.studentId}:${data.date}` })),
+    )
   }
   res.json({ ok: true })
 })
@@ -206,7 +223,8 @@ teacherRouter.put('/groups/:id/assessments', async (req, res) => {
   await prisma.$transaction(
     data.items.map((item) => {
       const attendanceScore = presentById.get(item.studentId) ? config.maxCriterionScore : 0
-      const activityScore = clampScore(item.activityScore, config.maxCriterionScore)
+      // kelmagan o'quvchi darsda faol bo'la olmaydi: faollik bali 0
+      const activityScore = attendanceScore ? clampScore(item.activityScore, config.maxCriterionScore) : 0
       const homeworkScore = clampScore(item.homeworkScore, config.maxCriterionScore)
       const total = attendanceScore + activityScore + homeworkScore
       return prisma.assessment.upsert({
@@ -232,6 +250,48 @@ teacherRouter.get('/ratings', async (req, res) => {
   res.json({ boards })
 })
 
+// ---- Guruhga qo'shilish so'rovlari: o'quvchi so'raydi, ustoz tasdiqlaydi yoki rad etadi.
+teacherRouter.get('/join-requests', async (req, res) => {
+  const requests = await prisma.joinRequest.findMany({
+    where: { status: 'PENDING', group: { teacherAssignment: { teacherId: req.user!.id } } },
+    orderBy: { createdAt: 'asc' },
+    include: { group: { include: { subject: true, _count: { select: { memberships: true } } } }, student: { select: { id: true, firstName: true, lastName: true, email: true, phone: true, avatarColor: true, studentProfile: true } } },
+  })
+  res.json({
+    requests: requests.map((item) => ({
+      id: item.id,
+      createdAt: item.createdAt,
+      student: { id: item.student.id, fullName: `${item.student.firstName} ${item.student.lastName}`, email: item.student.email, phone: item.student.phone, avatarColor: item.student.avatarColor, grade: item.student.studentProfile?.grade ?? '' },
+      group: { id: item.group.id, name: item.group.name, subject: item.group.subject.name, color: item.group.subject.color, memberCount: item.group._count.memberships, capacity: item.group.capacity },
+    })),
+  })
+})
+
+teacherRouter.post('/join-requests/:id/:decision', async (req, res) => {
+  const decision = z.enum(['approve', 'reject']).parse(req.params.decision)
+  const request = await prisma.joinRequest.findFirst({
+    where: { id: String(req.params.id), group: { teacherAssignment: { teacherId: req.user!.id } } },
+    include: { group: { include: { subject: true, _count: { select: { memberships: true } } } } },
+  })
+  if (!request) throw notFound('So‘rov topilmadi.')
+  if (request.status !== 'PENDING') throw badRequest('Bu so‘rov allaqachon ko‘rib chiqilgan.')
+  if (decision === 'approve') {
+    if (request.group._count.memberships >= request.group.capacity) throw badRequest('Guruh to‘lgan.')
+    await assertStudentFree(request.studentId, request.group, { ignoreGroupId: request.groupId })
+    await prisma.$transaction([
+      prisma.groupMembership.upsert({ where: { groupId_studentId: { groupId: request.groupId, studentId: request.studentId } }, create: { groupId: request.groupId, studentId: request.studentId }, update: {} }),
+      prisma.joinRequest.update({ where: { id: request.id }, data: { status: 'APPROVED', decidedAt: new Date() } }),
+      prisma.notification.create({ data: { userId: request.studentId, title: 'So‘rovingiz tasdiqlandi', body: `"${request.group.name}" guruhiga qabul qilindingiz. Darslar ${request.group.lessonTime} da boshlanadi.` } }),
+    ])
+  } else {
+    await prisma.$transaction([
+      prisma.joinRequest.update({ where: { id: request.id }, data: { status: 'REJECTED', decidedAt: new Date() } }),
+      prisma.notification.create({ data: { userId: request.studentId, title: 'So‘rov rad etildi', body: `"${request.group.name}" guruhiga qo‘shilish so‘rovingiz ustoz tomonidan rad etildi.` } }),
+    ])
+  }
+  res.json({ ok: true })
+})
+
 teacherRouter.patch('/profile', async (req, res) => {
   const data = teacherProfileSchema.parse(req.body)
   const profile = await prisma.teacherProfile.upsert({ where: { userId: req.user!.id }, create: { userId: req.user!.id, ...data }, update: data })
@@ -239,6 +299,9 @@ teacherRouter.patch('/profile', async (req, res) => {
 })
 
 teacherRouter.get('/profile', async (req, res) => {
-  const profile = await prisma.teacherProfile.findUnique({ where: { userId: req.user!.id } })
-  res.json({ profile })
+  const [profile, subjects] = await Promise.all([
+    prisma.teacherProfile.findUnique({ where: { userId: req.user!.id } }),
+    prisma.teacherSubject.findMany({ where: { teacherId: req.user!.id }, include: { subject: true } }),
+  ])
+  res.json({ profile, subjects: subjects.map((item) => ({ id: item.subject.id, name: item.subject.name, color: item.subject.color, icon: item.subject.icon })) })
 })

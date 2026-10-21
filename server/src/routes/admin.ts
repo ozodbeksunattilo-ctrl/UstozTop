@@ -4,9 +4,10 @@ import { audit } from '../lib/audit.js'
 import { badRequest, conflict, forbidden, notFound } from '../lib/http.js'
 import { prisma } from '../lib/prisma.js'
 import { todayUTC } from '../lib/ranking.js'
+import { assertTeacherFree } from '../lib/schedule.js'
 import { hashPassword } from '../lib/security.js'
 import { studentBoard, teacherCards } from '../lib/stats.js'
-import { createTeacherSchema, groupPatchSchema, groupSchema, splitIdentifier, subjectPatchSchema, subjectSchema, userStatusSchema } from '../lib/validation.js'
+import { createTeacherSchema, groupPatchSchema, groupSchema, splitIdentifier, subjectPatchSchema, subjectSchema, teacherPatchSchema, userStatusSchema } from '../lib/validation.js'
 import { requireRole } from '../middleware/auth.js'
 
 // Faqat ADMIN roli. Muhim amallar (tasdiqlash, bloklash, o'chirish) audit jurnaliga yoziladi.
@@ -96,10 +97,61 @@ adminRouter.post('/teachers', async (req, res) => {
       role: 'TEACHER',
       status: 'ACTIVE',
       teacherProfile: { create: { qualification: data.qualification ?? '', experienceYears: data.experienceYears ?? 0 } },
+      teachingSubjects: { create: data.subjectIds.map((subjectId) => ({ subjectId })) },
     },
   })
-  await audit(req.user!.id, 'teacher.create', 'User', user.id)
+  await audit(req.user!.id, 'teacher.create', 'User', user.id, { subjects: data.subjectIds.length })
   res.status(201).json({ id: user.id })
+})
+
+// Ustozlar ro'yxati: login (email/telefon), qaysi fanlardan dars berishi va guruhlari.
+adminRouter.get('/teachers', async (_req, res) => {
+  const teachers = await prisma.user.findMany({
+    where: { role: 'TEACHER' },
+    orderBy: { createdAt: 'desc' },
+    include: { teacherProfile: true, teachingSubjects: { include: { subject: true } }, assignments: { include: { group: { include: { subject: true } } } } },
+  })
+  res.json({
+    teachers: teachers.map((teacher) => ({
+      id: teacher.id,
+      fullName: `${teacher.firstName} ${teacher.lastName}`,
+      firstName: teacher.firstName,
+      lastName: teacher.lastName,
+      email: teacher.email,
+      phone: teacher.phone,
+      status: teacher.status,
+      qualification: teacher.teacherProfile?.qualification ?? '',
+      experienceYears: teacher.teacherProfile?.experienceYears ?? 0,
+      subjects: teacher.teachingSubjects.map((item) => ({ id: item.subject.id, name: item.subject.name, color: item.subject.color, icon: item.subject.icon })),
+      groupCount: teacher.assignments.length,
+    })),
+  })
+})
+
+// Ustoz ma'lumotlarini, fanlarini o'zgartirish va parolni qayta o'rnatish (admin yangi parolni ustozga yetkazadi).
+adminRouter.patch('/teachers/:id', async (req, res) => {
+  const { subjectIds, password, qualification, experienceYears, ...names } = teacherPatchSchema.parse(req.body)
+  const id = String(req.params.id)
+  const teacher = await prisma.user.findFirst({ where: { id, role: 'TEACHER' } })
+  if (!teacher) throw notFound('Ustoz topilmadi.')
+  if (subjectIds) {
+    const found = await prisma.subject.count({ where: { id: { in: subjectIds } } })
+    if (found !== new Set(subjectIds).size) throw badRequest('Tanlangan fanlardan biri topilmadi.')
+  }
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id },
+      data: {
+        ...names,
+        ...(password ? { passwordHash: await hashPassword(password) } : {}),
+        teacherProfile: { upsert: { create: { qualification: qualification ?? '', experienceYears: experienceYears ?? 0 }, update: { ...(qualification !== undefined ? { qualification } : {}), ...(experienceYears !== undefined ? { experienceYears } : {}) } } },
+      },
+    }),
+    ...(password ? [prisma.session.deleteMany({ where: { userId: id } })] : []),
+    ...(subjectIds ? [prisma.teacherSubject.deleteMany({ where: { teacherId: id } }), prisma.teacherSubject.createMany({ data: [...new Set(subjectIds)].map((subjectId) => ({ teacherId: id, subjectId })) })] : []),
+  ])
+  await audit(req.user!.id, password ? 'teacher.reset_password' : 'teacher.update', 'User', id)
+  res.json({ ok: true })
 })
 
 // ---- Fanlar
@@ -129,7 +181,7 @@ adminRouter.patch('/subjects/:id', async (req, res) => {
 // ---- Guruhlar
 const adminGroupInclude = {
   subject: true,
-  teacherAssignment: { include: { teacher: { select: { id: true, firstName: true, lastName: true } } } },
+  teacherAssignment: { include: { teacher: { select: { id: true, firstName: true, lastName: true, status: true } } } },
   _count: { select: { memberships: true } },
 } as const
 
@@ -141,7 +193,7 @@ adminRouter.get('/groups', async (_req, res) => {
       name: group.name,
       active: group.active,
       subject: { id: group.subject.id, name: group.subject.name, color: group.subject.color, icon: group.subject.icon },
-      teacher: group.teacherAssignment ? { id: group.teacherAssignment.teacher.id, fullName: `${group.teacherAssignment.teacher.firstName} ${group.teacherAssignment.teacher.lastName}` } : null,
+      teacher: group.teacherAssignment ? { id: group.teacherAssignment.teacher.id, status: group.teacherAssignment.teacher.status, fullName: `${group.teacherAssignment.teacher.firstName} ${group.teacherAssignment.teacher.lastName}` } : null,
       lessonTime: group.lessonTime,
       daysOfWeek: group.daysOfWeek,
       capacity: group.capacity,
@@ -150,15 +202,22 @@ adminRouter.get('/groups', async (_req, res) => {
   })
 })
 
-async function assertActiveTeacher(teacherId: string) {
-  const teacher = await prisma.user.findFirst({ where: { id: teacherId, role: 'TEACHER', status: 'ACTIVE' } })
+// Ustozga fanlar biriktirilgan bo'lsa, guruh faqat shu fanlardan biri bo'yicha bo'lishi mumkin.
+async function assertActiveTeacher(teacherId: string, subjectId?: string) {
+  const teacher = await prisma.user.findFirst({ where: { id: teacherId, role: 'TEACHER', status: 'ACTIVE' }, include: { teachingSubjects: true } })
   if (!teacher) throw badRequest('Faol ustoz topilmadi.')
+  if (subjectId && teacher.teachingSubjects.length && !teacher.teachingSubjects.some((item) => item.subjectId === subjectId)) {
+    throw badRequest('Bu ustoz tanlangan fandan dars bermaydi. Avval Ustozlar bo‘limida fanni biriktiring.')
+  }
 }
 
 adminRouter.post('/groups', async (req, res) => {
   const { teacherId, ...data } = groupSchema.parse(req.body)
   if (!(await prisma.subject.findFirst({ where: { id: data.subjectId, active: true } }))) throw badRequest('Fan topilmadi yoki faol emas.')
-  if (teacherId) await assertActiveTeacher(teacherId)
+  if (teacherId) {
+    await assertActiveTeacher(teacherId, data.subjectId)
+    await assertTeacherFree(teacherId, data)
+  }
   const group = await prisma.group.create({ data: { ...data, ...(teacherId ? { teacherAssignment: { create: { teacherId } } } : {}) } })
   await audit(req.user!.id, 'group.create', 'Group', group.id, { name: group.name, teacherId: teacherId ?? null })
   res.status(201).json({ id: group.id })
@@ -167,10 +226,13 @@ adminRouter.post('/groups', async (req, res) => {
 adminRouter.patch('/groups/:id', async (req, res) => {
   const { teacherId, ...data } = groupPatchSchema.parse(req.body)
   const id = String(req.params.id)
-  if (!(await prisma.group.findUnique({ where: { id } }))) throw notFound('Guruh topilmadi.')
+  const existing = await prisma.group.findUnique({ where: { id } })
+  if (!existing) throw notFound('Guruh topilmadi.')
+  if (teacherId) await assertActiveTeacher(teacherId, data.subjectId ?? existing.subjectId)
+  const currentTeacher = teacherId ?? (await prisma.teacherAssignment.findUnique({ where: { groupId: id } }))?.teacherId
+  if (currentTeacher && (teacherId || data.lessonTime || data.daysOfWeek)) await assertTeacherFree(currentTeacher, { lessonTime: data.lessonTime ?? existing.lessonTime, daysOfWeek: data.daysOfWeek ?? existing.daysOfWeek }, id)
   await prisma.group.update({ where: { id }, data })
   if (teacherId) {
-    await assertActiveTeacher(teacherId)
     await prisma.teacherAssignment.upsert({ where: { groupId: id }, create: { groupId: id, teacherId }, update: { teacherId, assignedAt: new Date() } })
   }
   await audit(req.user!.id, data.active === false ? 'group.deactivate' : 'group.update', 'Group', id, teacherId ? { teacherId } : undefined)
@@ -180,9 +242,11 @@ adminRouter.patch('/groups/:id', async (req, res) => {
 adminRouter.put('/groups/:id/teacher', async (req, res) => {
   const { teacherId } = z.object({ teacherId: z.string().nullable() }).parse(req.body)
   const id = String(req.params.id)
-  if (!(await prisma.group.findUnique({ where: { id } }))) throw notFound('Guruh topilmadi.')
+  const target = await prisma.group.findUnique({ where: { id } })
+  if (!target) throw notFound('Guruh topilmadi.')
   if (teacherId) {
-    await assertActiveTeacher(teacherId)
+    await assertActiveTeacher(teacherId, target.subjectId)
+    await assertTeacherFree(teacherId, target, id)
     await prisma.teacherAssignment.upsert({ where: { groupId: id }, create: { groupId: id, teacherId }, update: { teacherId, assignedAt: new Date() } })
   } else {
     await prisma.teacherAssignment.deleteMany({ where: { groupId: id } })

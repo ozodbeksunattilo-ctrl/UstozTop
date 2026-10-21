@@ -3,7 +3,39 @@ import { CameraIcon, CloseIcon, ImageIcon, SendIcon, StopIcon } from './Icons.js
 
 const MAX_LENGTH = 8000
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024
+const MAX_RAW_IMAGE_BYTES = 15 * 1024 * 1024
+const MAX_IMAGE_SIDE = 1280
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+
+function readAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => typeof reader.result === 'string' ? resolve(reader.result) : reject(new Error('Rasmni o‘qib bo‘lmadi.'))
+    reader.onerror = () => reject(new Error('Rasmni o‘qib bo‘lmadi.'))
+    reader.readAsDataURL(file)
+  })
+}
+
+// Rasm yuborishdan oldin kichraytiriladi: yuklash ham, tahlil ham sezilarli tezlashadi.
+async function prepareImage(file) {
+  const original = await readAsDataUrl(file)
+  try {
+    const bitmap = await createImageBitmap(file)
+    const scale = Math.min(1, MAX_IMAGE_SIDE / Math.max(bitmap.width, bitmap.height))
+    if (scale === 1 && file.size < 400 * 1024) return { dataUrl: original, mimeType: file.type }
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.round(bitmap.width * scale)
+    canvas.height = Math.round(bitmap.height * scale)
+    const context = canvas.getContext('2d')
+    context.fillStyle = '#fff'
+    context.fillRect(0, 0, canvas.width, canvas.height)
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+    bitmap.close?.()
+    return { dataUrl: canvas.toDataURL('image/jpeg', 0.85), mimeType: 'image/jpeg' }
+  } catch {
+    return { dataUrl: original, mimeType: file.type }
+  }
+}
 
 export default function ChatInput({ value, onChange, onSend, onStop, loading, inputRef }) {
   const innerRef = useRef(null)
@@ -28,19 +60,18 @@ export default function ChatInput({ value, onChange, onSend, onStop, loading, in
       setImageError('JPG, PNG yoki WebP rasm tanlang.')
       return
     }
-    if (file.size > MAX_IMAGE_BYTES) {
-      setImageError('Rasm hajmi 5 MB dan oshmasin.')
+    if (file.size > MAX_RAW_IMAGE_BYTES) {
+      setImageError('Rasm hajmi 15 MB dan oshmasin.')
       return
     }
 
     try {
-      const dataUrl = await new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = () => typeof reader.result === 'string' ? resolve(reader.result) : reject(new Error('Rasmni o‘qib bo‘lmadi.'))
-        reader.onerror = () => reject(new Error('Rasmni o‘qib bo‘lmadi.'))
-        reader.readAsDataURL(file)
-      })
-      setImage({ dataUrl, mimeType: file.type, name: file.name })
+      const prepared = await prepareImage(file)
+      if (prepared.dataUrl.length * 0.75 > MAX_IMAGE_BYTES) {
+        setImageError('Rasm juda katta. Kichikroq rasm tanlang.')
+        return
+      }
+      setImage({ ...prepared, name: file.name })
       setImageError('')
     } catch (error) {
       setImageError(error.message || 'Rasmni o‘qib bo‘lmadi.')

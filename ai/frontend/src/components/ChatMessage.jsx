@@ -192,12 +192,6 @@ function AssistantMessage({ message, onRetry }) {
         </div>
         <div className="mt-1.5 flex items-center gap-2 pl-1 text-[11px] text-[#6f6a8a]">
           <span>{formatTime(message.time)}</span>
-          {message.model && (
-            <>
-              <span className="h-1 w-1 rounded-full bg-[#4a4660]" />
-              <span className="truncate">{message.model}</span>
-            </>
-          )}
         </div>
       </div>
     </div>

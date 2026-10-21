@@ -12,7 +12,7 @@ function hasMatchingImageSignature(mimeType, bytes) {
 
 export function parseMessages(body) {
   if (!body || typeof body !== 'object' || !Array.isArray(body.messages)) return null
-  if (body.messages.length > config.maxHistoryMessages * 2) return null
+  if (body.messages.length > 60) return null
 
   const messages = body.messages.map((item) => {
     if (!item || typeof item !== 'object') return null

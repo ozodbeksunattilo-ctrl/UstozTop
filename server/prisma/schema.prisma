@@ -33,21 +33,23 @@ model User {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
-  studentProfile StudentProfile?
-  teacherProfile TeacherProfile?
-  sessions       Session[]
-  resetTokens    PasswordResetToken[]
-  memberships    GroupMembership[]
-  assignments    TeacherAssignment[]
-  attendances    Attendance[]        @relation("AttendanceStudent")
-  markedAttendances Attendance[]     @relation("AttendanceMarker")
-  assessments    Assessment[]        @relation("AssessmentStudent")
-  givenAssessments Assessment[]      @relation("AssessmentTeacher")
-  reviewsWritten TeacherReview[]     @relation("ReviewStudent")
-  reviewsReceived TeacherReview[]    @relation("ReviewTeacher")
-  notifications  Notification[]
-  auditLogs      AuditLog[]
-  aiConversations AIConversation[]
+  studentProfile    StudentProfile?
+  teacherProfile    TeacherProfile?
+  sessions          Session[]
+  resetTokens       PasswordResetToken[]
+  memberships       GroupMembership[]
+  assignments       TeacherAssignment[]
+  teachingSubjects  TeacherSubject[]
+  joinRequests      JoinRequest[]
+  attendances       Attendance[]         @relation("AttendanceStudent")
+  markedAttendances Attendance[]         @relation("AttendanceMarker")
+  assessments       Assessment[]         @relation("AssessmentStudent")
+  givenAssessments  Assessment[]         @relation("AssessmentTeacher")
+  reviewsWritten    TeacherReview[]      @relation("ReviewStudent")
+  reviewsReceived   TeacherReview[]      @relation("ReviewTeacher")
+  notifications     Notification[]
+  auditLogs         AuditLog[]
+  aiConversations   AIConversation[]
 
   @@index([role, status])
 }
@@ -67,17 +69,19 @@ model TeacherProfile {
 }
 
 model Subject {
-  id           String   @id @default(cuid())
-  name         String   @unique
+  id           String           @id @default(cuid())
+  name         String           @unique
   category     String
-  icon         String   @default("✦")
-  color        String   @default("#8b6cff")
+  icon         String           @default("✦")
+  color        String           @default("#8b6cff")
   symbols      String[]
   topics       String[]
-  totalLessons Int      @default(24)
-  active       Boolean  @default(true)
-  createdAt    DateTime @default(now())
+  description  String           @default("")
+  totalLessons Int              @default(24)
+  active       Boolean          @default(true)
+  createdAt    DateTime         @default(now())
   groups       Group[]
+  teachers     TeacherSubject[]
 }
 
 model Group {
@@ -93,6 +97,7 @@ model Group {
 
   teacherAssignment TeacherAssignment?
   memberships       GroupMembership[]
+  joinRequests      JoinRequest[]
   attendances       Attendance[]
   assessments       Assessment[]
 
@@ -108,6 +113,38 @@ model TeacherAssignment {
   assignedAt DateTime @default(now())
 
   @@index([teacherId])
+}
+
+// Admin ustozga qaysi fanlardan dars berishini belgilaydi.
+model TeacherSubject {
+  teacherId String
+  teacher   User    @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  subjectId String
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@id([teacherId, subjectId])
+  @@index([subjectId])
+}
+
+enum JoinStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// O'quvchi guruhga qo'shilish uchun so'rov yuboradi, ustoz tasdiqlaydi.
+model JoinRequest {
+  id        String     @id @default(cuid())
+  groupId   String
+  group     Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  studentId String
+  student   User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  status    JoinStatus @default(PENDING)
+  createdAt DateTime   @default(now())
+  decidedAt DateTime?
+
+  @@unique([groupId, studentId])
+  @@index([status])
 }
 
 model GroupMembership {
@@ -182,9 +219,11 @@ model Notification {
   title     String
   body      String
   read      Boolean  @default(false)
+  dedupeKey String?
   createdAt DateTime @default(now())
 
   @@index([userId, read])
+  @@index([dedupeKey])
 }
 
 model AuditLog {

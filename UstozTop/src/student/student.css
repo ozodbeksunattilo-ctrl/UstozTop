@@ -1,7 +1,7 @@
 /* ===== O'quvchi paneli: yuqori header (desktop) + pastki tab-bar (mobil) ===== */
 .student-app {
-  --student-bg: #080a14; --student-panel: #111425; --student-panel-2: #171a2e; --student-border: rgba(161, 165, 207, .13);
-  --student-muted: #959bb8; --student-text: #f1f0ff; --student-accent: #8b6cff; --student-accent-2: #38d0e0;
+  --student-bg: #0a1020; --student-panel: #111a30; --student-panel-2: #18233f; --student-border: rgba(161, 165, 207, .13);
+  --student-muted: #959bb8; --student-text: #f1f0ff; --student-accent: #8b6cff; --student-accent-2: #3cc3c8;
   min-height: 100vh;
   background: radial-gradient(ellipse at 70% -10%, rgba(139, 108, 255, .14), transparent 55%), var(--student-bg);
   color: var(--student-text); font-size: 15px; line-height: 1.5;
@@ -73,7 +73,7 @@
 .chart-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; margin-bottom: 8px; color: var(--student-muted); font-size: 14px; }
 .chart-legend strong { margin-left: auto; color: #47c995; }
 .chart-legend i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 50%; }
-.legend-purple { background: #a17cff; } .legend-cyan { background: #42c8d5; }
+.legend-purple { background: #8b6cff; } .legend-cyan { background: #42c8d5; }
 .student-chart { display: block; width: 100%; height: auto; }
 .chart-months { display: flex; justify-content: space-between; gap: 6px; margin-top: 8px; color: var(--student-muted); font-size: 12px; }
 
@@ -93,7 +93,7 @@
 .lesson-row-completed .lesson-description strong { text-decoration: line-through; opacity: .7; }
 .student-enrollment-empty { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; border: 1px dashed var(--student-border); border-radius: 14px; padding: 16px; }
 .student-enrollment-empty p { margin: 0; color: var(--student-muted); }
-.student-enrollment-empty button, .subject-enroll-button, .ai-chat-link, .student-rank-action, .profile-edit { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; border: 0; border-radius: 12px; background: linear-gradient(135deg, #8b6cff, #6a45e6); padding: 0 18px; color: #fff; font-size: 15px; font-weight: 650; cursor: pointer; box-shadow: 0 8px 20px rgba(106, 69, 230, .3); }
+.student-enrollment-empty button, .subject-enroll-button, .ai-chat-link, .student-rank-action, .profile-edit { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; border: 0; border-radius: 12px; background: linear-gradient(135deg, #8b6cff, #5f3ce0); padding: 0 18px; color: #fff; font-size: 15px; font-weight: 650; cursor: pointer; box-shadow: 0 8px 20px rgba(95, 60, 224, .3); }
 
 /* --- fan kartalari --- */
 .student-subjects-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
@@ -123,7 +123,7 @@
 .ai-welcome { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
 .ai-welcome > span:last-child { display: grid; }
 .ai-welcome small { color: var(--student-muted); font-size: 14px; }
-.ai-orb { width: 48px; height: 48px; flex: none; border-radius: 50%; background: radial-gradient(circle at 32% 30%, #fff, #a78bff 38%, #4b2fb8); box-shadow: 0 0 28px rgba(139, 108, 255, .55); animation: ai-orb-float 5s ease-in-out infinite; }
+.ai-orb { width: 48px; height: 48px; flex: none; border-radius: 50%; background: radial-gradient(circle at 32% 30%, #fff, #8b6cff 38%, #5f3ce0); box-shadow: 0 0 28px rgba(139, 108, 255, .55); animation: ai-orb-float 5s ease-in-out infinite; }
 .ai-chat-link { width: 100%; }
 .leaderboard-scroll { display: grid; max-height: 420px; gap: 4px; overflow-y: auto; }
 .leader-row { display: grid; align-items: center; gap: 12px; border-radius: 10px; padding: 9px 10px; grid-template-columns: 28px minmax(0, 1fr) auto; font-size: 14px; }
@@ -206,7 +206,7 @@
 .sp-badges em { border-radius: 999px; background: rgba(139, 108, 255, .18); padding: 4px 12px; color: var(--student-accent); font-size: 12px; font-style: normal; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
 .sp-hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
 .sp-primary, .sp-ghost { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; border-radius: 12px; padding: 0 16px; font-size: 14px; font-weight: 650; cursor: pointer; }
-.sp-primary { border: 0; background: linear-gradient(135deg, #8b6cff, #6a45e6); color: #fff; box-shadow: 0 8px 20px rgba(106, 69, 230, .3); }
+.sp-primary { border: 0; background: linear-gradient(135deg, #8b6cff, #5f3ce0); color: #fff; box-shadow: 0 8px 20px rgba(95, 60, 224, .3); }
 .sp-ghost { border: 1px solid var(--student-border); background: none; color: var(--student-text); }
 .sp-stats { display: grid; grid-column: 1 / -1; gap: 12px; margin: 0; grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .sp-stats > div { display: grid; gap: 2px; border: 1px solid var(--student-border); border-radius: 16px; background: color-mix(in srgb, var(--student-bg) 55%, transparent); padding: 14px 16px; }
@@ -270,7 +270,7 @@
 .student-enrollment-form { display: grid; gap: 0; }
 .student-enrollment-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
 .student-enrollment-actions button { min-height: 44px; border-radius: 12px; padding: 0 18px; font-size: 15px; font-weight: 650; cursor: pointer; }
-.profile-save { border: 0; background: linear-gradient(135deg, #8b6cff, #6a45e6); color: #fff; }
+.profile-save { border: 0; background: linear-gradient(135deg, #8b6cff, #5f3ce0); color: #fff; }
 
 /* --- AI chat (ichki) --- */
 .student-content .ai-embedded-app { height: calc(100dvh - 140px); min-height: 460px; max-height: none; border-radius: 20px; }

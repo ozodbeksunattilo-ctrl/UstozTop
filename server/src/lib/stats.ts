@@ -54,18 +54,20 @@ export async function teacherCards(filter: { query?: string; subjectId?: string;
       status: filter.includeInactive ? undefined : 'ACTIVE',
       ...(filter.teacherId ? { id: filter.teacherId } : {}),
       ...(query ? { OR: [{ firstName: { contains: query, mode: 'insensitive' } }, { lastName: { contains: query, mode: 'insensitive' } }] } : {}),
-      ...(filter.subjectId ? { assignments: { some: { group: { subjectId: filter.subjectId, active: true } } } } : {}),
+      ...(filter.subjectId ? { AND: [{ OR: [{ assignments: { some: { group: { subjectId: filter.subjectId, active: true } } } }, { teachingSubjects: { some: { subjectId: filter.subjectId } } }] }] } : {}),
     },
     include: {
       teacherProfile: true,
       assignments: { include: { group: { include: { subject: true, _count: { select: { memberships: true } } } } } },
+      teachingSubjects: { include: { subject: true } },
     },
   })
   const reviews = await prisma.teacherReview.groupBy({ by: ['teacherId'], where: { teacherId: { in: teachers.map((teacher) => teacher.id) } }, _avg: { rating: true }, _count: { _all: true } })
   const reviewById = new Map(reviews.map((row) => [row.teacherId, row]))
   return teachers.map((teacher) => {
     const activeGroups = teacher.assignments.map((item) => item.group).filter((group) => group.active)
-    const subjects = new Map(activeGroups.map((group) => [group.subject.id, { id: group.subject.id, name: group.subject.name, color: group.subject.color, icon: group.subject.icon }]))
+    // admin biriktirgan fanlar + guruhi bor fanlar
+    const subjects = new Map([...teacher.teachingSubjects.map((item) => item.subject), ...activeGroups.map((group) => group.subject)].map((subject) => [subject.id, { id: subject.id, name: subject.name, color: subject.color, icon: subject.icon }]))
     const review = reviewById.get(teacher.id)
     return {
       id: teacher.id,

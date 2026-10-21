@@ -23,7 +23,7 @@
 .pe-colors button.is-active { box-shadow: 0 0 0 3px var(--pe-field), 0 0 0 5px currentColor; }
 .pe-actions { display: flex; justify-content: flex-end; gap: 10px; }
 .pe-actions button { min-height: 44px; border-radius: 12px; padding: 0 20px; font-size: 15px; font-weight: 650; cursor: pointer; }
-.pe-primary { border: 0; background: linear-gradient(135deg, #8b6cff, #6a45e6); color: #fff; box-shadow: 0 8px 20px rgba(106, 69, 230, .3); }
+.pe-primary { border: 0; background: linear-gradient(135deg, #8b6cff, #5f3ce0); color: #fff; box-shadow: 0 8px 20px rgba(95, 60, 224, .3); }
 .pe-primary:disabled { opacity: .6; cursor: wait; }
 .pe-ghost { border: 1px solid var(--pe-line); background: none; color: var(--pe-text); }
 .pe-password { border-top: 1px solid var(--pe-line); padding-top: 22px; }
@@ -35,7 +35,7 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%239a9fbd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 12px center; background-size: 12px 8px; padding-right: 34px !important;
 }
-.student-app select option, .role-app select option, .auth select option { background: #151729; color: #f1f0ff; }
+.student-app select option, .role-app select option, .auth select option { background: #141d36; color: #f1f0ff; }
 .student-app[data-theme="light"] select option, .role-app[data-theme="light"] select option, .auth[data-theme="light"] select option { background: #fff; color: #25263a; }
 .student-app select:focus-visible, .role-app select:focus-visible { outline: 2px solid #8b6cff; outline-offset: 2px; }
 .student-app select:disabled, .role-app select:disabled { cursor: not-allowed; opacity: .6; }

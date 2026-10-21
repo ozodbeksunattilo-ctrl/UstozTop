@@ -92,8 +92,8 @@ function App({ embedded = false, onBack }) {
     setLoading(true)
 
     try {
-      const lastImageIndex = history.findLastIndex((message) => message.role === 'user' && message.image)
-      const requestMessages = history.map(({ role, content, image }, index) => ({
+      const lastImageIndex = history.slice(-12).findLastIndex((message) => message.role === 'user' && message.image)
+      const requestMessages = history.slice(-12).map(({ role, content, image }, index) => ({
         role,
         content,
         ...(index === lastImageIndex && image
@@ -200,8 +200,7 @@ function App({ embedded = false, onBack }) {
 
           {backend.status === 'unconfigured' && (
             <div className="border-b border-amber-400/15 bg-amber-400/[0.07] px-4 py-2 text-center text-[11px] text-amber-200/90 sm:text-xs">
-              GEMINI_API_KEY sozlanmagan. <code className="rounded bg-black/30 px-1 py-0.5">ai/backend/.env</code> fayliga
-              kalitni qo'shib, backendni qayta ishga tushiring.
+              AI xizmati hali sozlanmagan. Administratorga murojaat qiling.
             </div>
           )}
 
@@ -234,7 +233,7 @@ function App({ embedded = false, onBack }) {
         </div>
 
         <p className="hidden py-2.5 text-center text-[11px] text-[#5f5b76] sm:block">
-          Ustoz yordamchi · Gemini AI · Javoblarni tekshirish tavsiya etiladi
+          UstozTop AI · Javoblarni tekshirish tavsiya etiladi
         </p>
       </div>
     </div>

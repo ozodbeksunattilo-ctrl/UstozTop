@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { FiAward, FiBookOpen, FiCalendar, FiCheck, FiClipboard, FiPlus, FiSearch, FiStar, FiTrash2, FiUsers } from 'react-icons/fi'
+import { FiAward, FiBookOpen, FiCalendar, FiCheck, FiClipboard, FiPlus, FiSearch, FiStar, FiTrash2, FiUserPlus, FiUsers, FiX } from 'react-icons/fi'
 import { api, queryString } from '../api.js'
 import { Avatar, daysText, Dialog, Empty, ErrorBox, formatDate, Loading } from '../components/ui.jsx'
 import { translate as t } from '../i18n.js'
@@ -13,6 +13,9 @@ function Overview({ language, onGo }) {
   if (error && !data) return <ErrorBox error={error} onRetry={reload} language={language} />
   return (
     <>
+      {data.pendingRequests > 0 && (
+        <div className="role-callout"><FiUserPlus aria-hidden="true" /><span>{data.pendingRequests} {t(language, 'ta o‘quvchi guruhingizga qo‘shilishni so‘ramoqda.')}</span><button type="button" className="ui-btn ui-btn-sm ui-btn-primary" onClick={() => onGo('requests')}>{t(language, 'Ko‘rib chiqish')}</button></div>
+      )}
       <section className="role-stats">
         <StatCard label={t(language, 'Guruhlarim')} value={data.groupCount} hint={t(language, 'Biriktirilgan faol guruhlar')} icon={FiBookOpen} accent="#40c6d5" />
         <StatCard label={t(language, 'O‘quvchilar')} value={data.studentCount} hint={t(language, 'Guruhlardagi jami o‘quvchi')} icon={FiUsers} accent="#9272ff" />
@@ -24,12 +27,55 @@ function Overview({ language, onGo }) {
         {data.todayGroups.length ? (
           <div className="role-today">
             {data.todayGroups.map((group) => (
-              <div key={group.id}><strong>{group.lessonTime}</strong><span><b>{t(language, group.subject)}</b><small>{group.name}</small></span><button type="button" className="ui-btn ui-btn-sm ui-btn-primary" onClick={() => onGo('grading')}>{t(language, 'Davomat olish')}</button></div>
+              <div key={group.id}><strong>{group.lessonTime}</strong><span><b>{t(language, group.subject)}</b><small>{group.name}</small></span>{group.memberCount ? <button type="button" className="ui-btn ui-btn-sm ui-btn-primary" onClick={() => onGo('grading')}>{t(language, 'Davomat olish')}</button> : <small>{t(language, 'O‘quvchi yo‘q')}</small>}</div>
             ))}
           </div>
         ) : <Empty title={t(language, 'Bugun dars yo‘q')} detail={t(language, 'Dars kunlari guruh sozlamalarida belgilanadi.')} />}
       </Card>
     </>
+  )
+}
+
+function Requests({ language, onNotice }) {
+  const { data, error, loading, reload } = useApi('/teacher/join-requests')
+  const [busyId, setBusyId] = useState(null)
+
+  async function decide(request, decision) {
+    setBusyId(request.id)
+    try {
+      await api.post(`/teacher/join-requests/${request.id}/${decision}`)
+      onNotice(t(language, decision === 'approve' ? 'O‘quvchi guruhga qabul qilindi.' : 'So‘rov rad etildi.'))
+      reload()
+    } catch (err) {
+      onNotice(t(language, err.message), true)
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  if (loading && !data) return <Loading language={language} />
+  if (error && !data) return <ErrorBox error={error} onRetry={reload} language={language} />
+  return (
+    <Card title={t(language, 'Qo‘shilish so‘rovlari')} subtitle={t(language, 'O‘quvchi sizning tasdig‘ingizdan keyingina guruhga qo‘shiladi.')} icon={FiUserPlus}>
+      {data.requests.length ? (
+        <div className="request-list">
+          {data.requests.map((request) => (
+            <article key={request.id} className="request-row" style={{ '--subject-accent': request.group.color }}>
+              <Avatar name={request.student.fullName} color={request.student.avatarColor} size={44} />
+              <span className="request-body">
+                <strong>{request.student.fullName}</strong>
+                <small>{request.student.email || request.student.phone}{request.student.grade ? ` · ${t(language, request.student.grade)}` : ''}</small>
+                <small className="request-group"><i />{t(language, request.group.subject)} · {request.group.name} · {request.group.memberCount}/{request.group.capacity}</small>
+              </span>
+              <span className="request-actions">
+                <button type="button" className="ui-btn ui-btn-sm ui-btn-success" disabled={busyId === request.id} onClick={() => decide(request, 'approve')}><FiCheck aria-hidden="true" /> {t(language, 'Qabul qilish')}</button>
+                <button type="button" className="ui-btn ui-btn-sm ui-btn-danger" disabled={busyId === request.id} onClick={() => decide(request, 'reject')}><FiX aria-hidden="true" /> {t(language, 'Rad etish')}</button>
+              </span>
+            </article>
+          ))}
+        </div>
+      ) : <Empty title={t(language, 'Yangi so‘rov yo‘q')} detail={t(language, 'O‘quvchilar guruhingizga qo‘shilishni so‘rasa, shu yerda ko‘rinadi.')} />}
+    </Card>
   )
 }
 
@@ -195,7 +241,12 @@ function Grading({ language, onNotice }) {
   }, [roster.data, attendance.data, assessments.data, students])
 
   const update = (studentId, patch) => setRows((current) => ({ ...current, [studentId]: { ...current[studentId], ...patch } }))
-  const clamp = (value) => Math.max(0, Math.min(10, Number.parseInt(value, 10) || 0))
+  const clamp = (value) => {
+    const number = Number.parseInt(value, 10)
+    if (Number.isNaN(number)) return 0
+    if (number < 0 || number > 10) onNotice(t(language, 'Ball 0 dan 10 gacha bo‘lishi kerak.'), true)
+    return Math.max(0, Math.min(10, number))
+  }
 
   async function save() {
     setSaving(true)
@@ -231,12 +282,12 @@ function Grading({ language, onNotice }) {
               {students.map((student) => {
                 const row = rows[student.id]
                 if (!row) return null
-                const total = (row.present ? 10 : 0) + row.activityScore + row.homeworkScore
+                const total = row.present ? 10 + row.activityScore + row.homeworkScore : row.homeworkScore
                 return (
                   <tr key={student.id}>
                     <td><span className="ui-person"><Avatar name={student.fullName} color={student.avatarColor} size={32} /><strong>{student.fullName}</strong></span></td>
-                    <td><label className="switch"><input type="checkbox" checked={row.present} onChange={(event) => update(student.id, { present: event.target.checked })} aria-label={`${student.fullName}: ${t(language, 'Keldi')}`} /><i /></label></td>
-                    <td><input className="score-input" type="number" min="0" max="10" value={row.activityScore} onChange={(event) => update(student.id, { activityScore: clamp(event.target.value) })} aria-label={`${student.fullName}: ${t(language, 'Faollik')}`} /></td>
+                    <td><label className="switch"><input type="checkbox" checked={row.present} onChange={(event) => update(student.id, event.target.checked ? { present: true } : { present: false, activityScore: 0 })} aria-label={`${student.fullName}: ${t(language, 'Keldi')}`} /><i /></label></td>
+                    <td><input className="score-input" type="number" min="0" max="10" value={row.present ? row.activityScore : 0} disabled={!row.present} title={row.present ? undefined : t(language, 'Kelmagan o‘quvchiga faollik bali qo‘yilmaydi')} onChange={(event) => update(student.id, { activityScore: clamp(event.target.value) })} aria-label={`${student.fullName}: ${t(language, 'Faollik')}`} /></td>
                     <td><input className="score-input" type="number" min="0" max="10" value={row.homeworkScore} onChange={(event) => update(student.id, { homeworkScore: clamp(event.target.value) })} aria-label={`${student.fullName}: ${t(language, 'Topshiriq')}`} /></td>
                     <td><input className="note-input" value={row.note} maxLength={300} onChange={(event) => update(student.id, { note: event.target.value })} aria-label={`${student.fullName}: ${t(language, 'Izoh')}`} /></td>
                     <td className="num"><strong>{total}</strong></td>
@@ -275,6 +326,7 @@ function Ratings({ language }) {
 }
 
 function TeacherPages({ page, language, onNotice, onGo }) {
+  if (page === 'requests') return <Requests language={language} onNotice={onNotice} />
   if (page === 'groups') return <Groups language={language} onNotice={onNotice} />
   if (page === 'students') return <Students language={language} />
   if (page === 'grading') return <Grading language={language} onNotice={onNotice} />

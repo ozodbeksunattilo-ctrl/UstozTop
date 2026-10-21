@@ -132,7 +132,7 @@ function TeachersPage({ language, selectedId, onSelect, onNotice }) {
             <button type="button" key={teacher.id} className="tcard" onClick={() => onSelect(teacher.id)}>
               <span className="tcard-head"><Avatar name={teacher.fullName} color={teacher.avatarColor} size={52} /><span><strong>{teacher.fullName}</strong><Stars value={teacher.rating} count={teacher.reviewCount} language={language} /></span></span>
               <span className="tcard-qual">{teacher.qualification || t(language, 'Ma’lumot kiritilmagan')}</span>
-              <span className="tcard-chips">{teacher.subjects.slice(0, 4).map((subject) => <span key={subject.id} className="ui-chip" style={{ '--chip': subject.color }}>{t(language, subject.name)}</span>)}</span>
+              <span className="tcard-chips">{teacher.subjects.slice(0, 4).map((subject) => <span key={subject.id} className="ui-chip" style={{ '--chip': subject.color }}>{t(language, subject.name)}</span>)}{teacher.subjects.length > 4 && <span className="ui-chip ui-chip-muted">+{teacher.subjects.length - 4}</span>}</span>
               <span className="tcard-meta"><span><FiAward aria-hidden="true" /> {teacher.experienceYears} {t(language, 'yil')}</span><span><FiBookOpen aria-hidden="true" /> {teacher.groupCount} {t(language, 'guruh')}</span><span><FiUsers aria-hidden="true" /> {teacher.studentCount}</span></span>
             </button>
           ))}

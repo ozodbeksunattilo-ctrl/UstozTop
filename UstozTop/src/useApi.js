@@ -9,11 +9,12 @@ export function useApi(path) {
   useEffect(() => {
     if (!path) return undefined
     let cancelled = false
+    const controller = new AbortController()
     setState((current) => (current.loading && !current.error ? current : { ...current, loading: true, error: null }))
-    api.get(path)
+    api.get(path, controller.signal)
       .then((data) => { if (!cancelled) setState({ data, error: null, loading: false }) })
-      .catch((error) => { if (!cancelled) setState((current) => ({ data: current.data, error, loading: false })) })
-    return () => { cancelled = true }
+      .catch((error) => { if (!cancelled && error?.name !== 'AbortError') setState((current) => ({ data: current.data, error, loading: false })) })
+    return () => { cancelled = true; controller.abort() }
   }, [path, version])
 
   const reload = useCallback(() => {
@@ -21,5 +22,6 @@ export function useApi(path) {
     setVersion((value) => value + 1)
   }, [])
 
-  return { ...state, reload }
+  // path endi paydo bo'lgan birinchi renderda ham "yuklanmoqda" deb hisoblanadi (data hali yo'q).
+  return { ...state, loading: state.loading || Boolean(path && !state.data && !state.error), reload }
 }

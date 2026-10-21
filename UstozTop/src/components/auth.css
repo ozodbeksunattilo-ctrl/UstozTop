@@ -1,12 +1,12 @@
 .auth {
-  --a-bg: #06070f; --a-text: #f1f0ff; --a-muted: #9a9fbd; --a-line: rgba(160, 165, 210, .16);
-  --a-card: rgba(18, 20, 38, .62); --a-field: rgba(10, 12, 24, .7); --a-accent: #8b6cff; --a-accent-2: #38d0e0;
+  --a-bg: #070d1c; --a-text: #f1f0ff; --a-muted: #9a9fbd; --a-line: rgba(160, 165, 210, .16);
+  --a-card: rgba(18, 20, 38, .62); --a-field: rgba(10, 12, 24, .7); --a-accent: #8b6cff; --a-accent-2: #3cc3c8;
   position: relative; display: flex; min-height: 100vh; flex-direction: column; overflow: hidden; isolation: isolate;
   background: var(--a-bg); color: var(--a-text); padding: 20px clamp(16px, 5vw, 72px);
   transition: background-color .3s ease, color .3s ease;
 }
 .auth[data-theme="light"] {
-  --a-bg: #f4f3fb; --a-text: #1f1d33; --a-muted: #625f7a; --a-line: rgba(80, 72, 130, .16);
+  --a-bg: #f4f4fb; --a-text: #1f1d33; --a-muted: #625f7a; --a-line: rgba(80, 72, 130, .16);
   --a-card: rgba(255, 255, 255, .72); --a-field: rgba(255, 255, 255, .9);
 }
 
@@ -47,7 +47,7 @@
 .auth-card h2 { margin: 0 0 6px; font-size: clamp(26px, 2.6vw, 32px); font-weight: 720; letter-spacing: -.035em; }
 .auth-card > p { margin: 0 0 22px; color: var(--a-muted); font-size: 15px; }
 .auth-tabs { position: relative; display: grid; grid-template-columns: 1fr 1fr; margin-bottom: 22px; border: 1px solid var(--a-line); border-radius: 14px; background: var(--a-field); padding: 4px; }
-.auth-tabs::before { content: ""; position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 10px; background: linear-gradient(135deg, #8b6cff, #6a45e6); box-shadow: 0 6px 18px rgba(106, 69, 230, .4); transition: transform .3s cubic-bezier(.4, 0, .2, 1); }
+.auth-tabs::before { content: ""; position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 10px; background: linear-gradient(135deg, #8b6cff, #5f3ce0); box-shadow: 0 6px 18px rgba(95, 60, 224, .4); transition: transform .3s cubic-bezier(.4, 0, .2, 1); }
 .auth-tabs[data-mode="register"]::before { transform: translateX(100%); }
 .auth-tabs button { position: relative; height: 40px; border: 0; background: none; color: var(--a-muted); font-size: 15px; font-weight: 600; cursor: pointer; transition: color .25s; }
 .auth-tabs button[aria-pressed="true"] { color: #fff; }

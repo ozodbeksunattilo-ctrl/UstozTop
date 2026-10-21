@@ -1,19 +1,19 @@
 import { useState } from 'react'
-import { FiClock, FiUsers } from 'react-icons/fi'
+import { FiClock, FiSend, FiUsers } from 'react-icons/fi'
 import { api } from '../api.js'
 import { daysText } from '../components/ui.jsx'
 import { translate as t } from '../i18n.js'
 
-// Guruhga qo'shilish/chiqish qatori (ustoz profili va fan sahifasida ishlatiladi).
+// Guruhga qo'shilish: o'quvchi so'rov yuboradi, ustoz tasdiqlagach a'zo bo'ladi (ustoz profili va fan sahifasida ishlatiladi).
 function GroupRow({ group, language, onChanged, onNotice, showTeacher = false }) {
   const [busy, setBusy] = useState(false)
 
-  async function toggle() {
+  async function act() {
     setBusy(true)
     try {
-      if (group.joined) await api.del(`/groups/${group.id}/join`)
+      if (group.joined || group.requested) await api.del(`/groups/${group.id}/join`)
       else await api.post(`/groups/${group.id}/join`)
-      onNotice(t(language, group.joined ? 'Guruhdan chiqdingiz.' : 'Guruhga muvaffaqiyatli qo‘shildingiz.'))
+      onNotice(t(language, group.joined ? 'Guruhdan chiqdingiz.' : group.requested ? 'So‘rov bekor qilindi.' : 'So‘rov ustozga yuborildi. Tasdiqlangach guruhga qo‘shilasiz.'))
       onChanged()
     } catch (error) {
       onNotice(t(language, error.message), true)
@@ -33,9 +33,21 @@ function GroupRow({ group, language, onChanged, onNotice, showTeacher = false })
         </small>
         <small><FiUsers aria-hidden="true" /> {group.memberCount}/{group.capacity}</small>
       </span>
-      <button type="button" className={`ui-btn ui-btn-sm ${group.joined ? 'ui-btn-danger' : 'ui-btn-primary'}`} disabled={busy || (!group.joined && group.full)} onClick={toggle}>
-        {t(language, group.joined ? 'Chiqish' : group.full ? 'To‘lgan' : 'Qo‘shilish')}
-      </button>
+      {group.joined ? (
+        <span className="grow-actions">
+          <span className="join-member">{t(language, 'A‘zosiz')}</span>
+          <button type="button" className="ui-btn-link" disabled={busy} onClick={act}>{t(language, 'Guruhdan chiqish')}</button>
+        </span>
+      ) : group.requested ? (
+        <span className="grow-actions">
+          <span className="join-pending"><i />{t(language, 'Ustoz javobi kutilmoqda')}</span>
+          <button type="button" className="ui-btn-link" disabled={busy} onClick={act}>{t(language, 'So‘rovni bekor qilish')}</button>
+        </span>
+      ) : (
+        <button type="button" className="ui-btn ui-btn-sm ui-btn-primary" disabled={busy || group.full} onClick={act}>
+          {group.full ? t(language, 'Joy yo‘q') : <><FiSend aria-hidden="true" /> {t(language, 'So‘rov yuborish')}</>}
+        </button>
+      )}
     </div>
   )
 }

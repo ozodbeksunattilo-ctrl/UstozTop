@@ -29,7 +29,8 @@ export const registerSchema = z
     identifier,
     password,
     confirmPassword: z.string(),
-    role: z.enum(['STUDENT', 'TEACHER']),
+    // Ochiq ro'yxatdan faqat o'quvchi o'ta oladi; ustoz hisobini admin yaratadi.
+    role: z.literal('STUDENT').default('STUDENT'),
     acceptTerms: z.literal(true, { message: 'Foydalanish shartlariga rozilik bering.' }),
   })
   .refine((data) => data.password === data.confirmPassword, { path: ['confirmPassword'], message: 'Parollar mos kelmadi.' })
@@ -74,6 +75,7 @@ export const subjectSchema = z.object({
   category: z.string().trim().min(2).max(60),
   icon: z.string().trim().min(1).max(8).default('✦'),
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/).default('#8b6cff'),
+  description: z.string().trim().max(600).default(''),
   totalLessons: z.number().int().min(1).max(200).default(24),
   topics: z.array(z.string().trim().min(1).max(80)).max(20).default([]),
   symbols: z.array(z.string().trim().min(1).max(40)).max(8).default([]),
@@ -98,6 +100,15 @@ export const createTeacherSchema = z.object({
   password,
   qualification: z.string().trim().max(200).optional(),
   experienceYears: z.number().int().min(0).max(70).optional(),
+  subjectIds: z.array(z.string()).max(30).default([]),
+})
+export const teacherPatchSchema = z.object({
+  firstName: name.optional(),
+  lastName: name.optional(),
+  password: password.optional(),
+  qualification: z.string().trim().max(200).optional(),
+  experienceYears: z.number().int().min(0).max(70).optional(),
+  subjectIds: z.array(z.string()).max(30).optional(),
 })
 export const teacherProfileSchema = z.object({
   bio: z.string().trim().max(600).optional(),

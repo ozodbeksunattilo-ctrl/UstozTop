@@ -20,6 +20,8 @@ async function login(identifier: string, pass: string) {
 
 let adminAgent: ReturnType<typeof agent>
 let teacherId = ''
+let subjectId = ''
+let otherSubjectId = ''
 let studentId = ''
 let groupId = ''
 let otherGroupId = ''
@@ -34,6 +36,7 @@ afterAll(async () => {
   const users = await prisma.user.findMany({ where: { email: { in: [studentEmail, teacherEmail] } }, select: { id: true } })
   const ids = users.map((user) => user.id)
   if (groupId) await prisma.group.deleteMany({ where: { id: { in: [groupId, otherGroupId].filter(Boolean) } } })
+  await prisma.subject.deleteMany({ where: { id: { in: [subjectId, otherSubjectId].filter(Boolean) } } })
   await prisma.auditLog.deleteMany({ where: { actorId: { in: ids } } })
   await prisma.user.deleteMany({ where: { id: { in: ids } } })
   await prisma.$disconnect()
@@ -69,13 +72,10 @@ describe('Register va Login', () => {
     expect(user.passwordHash.startsWith('$2')).toBe(true)
   })
 
-  it('ustoz PENDING holatida yaratiladi va ustoz API\'sidan foydalana olmaydi', async () => {
+  it('ustoz o‘zi ro‘yxatdan o‘ta olmaydi (akkauntni faqat admin yaratadi)', async () => {
     const res = await agent().post('/api/auth/register').send({ ...payload, identifier: teacherEmail, role: 'TEACHER' })
-    expect(res.status).toBe(201)
-    expect(res.body.user.status).toBe('PENDING')
-    teacherId = res.body.user.id
-    const client = (await login(teacherEmail, password)).client
-    expect((await client.get('/api/teacher/groups')).status).toBe(403)
+    expect(res.status).toBe(400)
+    expect(await prisma.user.findUnique({ where: { email: teacherEmail } })).toBeNull()
   })
 
   it('noto‘g‘ri parol 401 qaytaradi va sessiya cookie\'si httpOnly', async () => {
@@ -117,29 +117,61 @@ describe('Rollar va ruxsatlar', () => {
     expect((await client.get('/api/student/dashboard')).status).toBe(200)
   })
 
-  it('admin ustozni tasdiqlaydi (tasdiqlash oynasi: confirm majburiy) va audit yoziladi', async () => {
-    expect((await adminAgent.patch(`/api/admin/users/${teacherId}/status`).send({ status: 'ACTIVE' })).status).toBe(400)
-    expect((await adminAgent.patch(`/api/admin/users/${teacherId}/status`).send({ status: 'ACTIVE', confirm: true })).status).toBe(200)
-    const log = await prisma.auditLog.findFirst({ where: { entityId: teacherId, action: 'user.status.active' } })
+  it('admin ustoz hisobini yaratadi (login + parol + fan), ustoz shu login bilan kiradi', async () => {
+    // test bazasi bo'sh: kerakli fanlar shu yerda yaratiladi
+    const first = await adminAgent.post('/api/admin/subjects').send({ name: `Test fan A ${stamp}`, category: 'Test' })
+    const second = await adminAgent.post('/api/admin/subjects').send({ name: `Test fan B ${stamp}`, category: 'Test' })
+    expect(first.status).toBe(201)
+    subjectId = first.body.subject.id
+    otherSubjectId = second.body.subject.id
+    const created = await adminAgent.post('/api/admin/teachers').send({ firstName: 'Test', lastName: 'Teacher', identifier: teacherEmail, password, subjectIds: [subjectId] })
+    expect(created.status).toBe(201)
+    teacherId = created.body.id
+    const log = await prisma.auditLog.findFirst({ where: { entityId: teacherId, action: 'teacher.create' } })
     expect(log).toBeTruthy()
+    const { client, res } = await login(teacherEmail, password)
+    expect(res.status).toBe(200)
+    expect((await client.get('/api/teacher/groups')).status).toBe(200)
+    const list = await adminAgent.get('/api/admin/teachers')
+    expect(list.body.teachers.find((item: { id: string }) => item.id === teacherId).subjects[0].id).toBe(subjectId)
+  })
+
+  it('admin ustozning parolini almashtira oladi', async () => {
+    expect((await adminAgent.patch(`/api/admin/teachers/${teacherId}`).send({ password: 'YangiUstoz9' })).status).toBe(200)
+    expect((await login(teacherEmail, password)).res.status).toBe(401)
+    expect((await login(teacherEmail, 'YangiUstoz9')).res.status).toBe(200)
+    await adminAgent.patch(`/api/admin/teachers/${teacherId}`).send({ password })
   })
 })
 
 describe('Guruh, davomat, baholash va reyting', () => {
   it('admin fan/guruh yaratadi va ustozga biriktiradi', async () => {
-    const subjects = await adminAgent.get('/api/admin/subjects')
-    const subjectId = subjects.body.subjects[0].id
     const created = await adminAgent.post('/api/admin/groups').send({ name: `Test guruh ${stamp}`, subjectId, lessonTime: '15:00', daysOfWeek: [1, 3], capacity: 5, teacherId })
     expect(created.status).toBe(201)
     groupId = created.body.id
     const other = await adminAgent.post('/api/admin/groups').send({ name: `Boshqa guruh ${stamp}`, subjectId, daysOfWeek: [2] })
     otherGroupId = other.body.id
+    // ustoz dars bermaydigan fan bo'yicha guruhga biriktirib bo'lmaydi
+    const wrong = await adminAgent.post('/api/admin/groups').send({ name: `Noto‘g‘ri fan ${stamp}`, subjectId: otherSubjectId, daysOfWeek: [2], teacherId })
+    expect(wrong.status).toBe(400)
   })
 
-  it('o‘quvchi guruhga qo‘shiladi', async () => {
+  it('o‘quvchi so‘rov yuboradi, ustoz tasdiqlagach guruhga qo‘shiladi', async () => {
     const { client } = await login(studentEmail, 'YangiParol1')
     expect((await client.post(`/api/groups/${groupId}/join`)).status).toBe(201)
     expect((await client.post(`/api/groups/${groupId}/join`)).status).toBe(409)
+    // tasdiqlanmaguncha a'zo emas
+    expect((await client.get('/api/student/dashboard')).body.groups.some((group: { id: string }) => group.id === groupId)).toBe(false)
+
+    const teacher = (await login(teacherEmail, password)).client
+    const pending = await teacher.get('/api/teacher/join-requests')
+    const request = pending.body.requests.find((item: { student: { id: string } }) => item.student.id === studentId)
+    expect(request).toBeTruthy()
+    expect((await teacher.post(`/api/teacher/join-requests/${request.id}/approve`)).status).toBe(200)
+    expect((await teacher.post(`/api/teacher/join-requests/${request.id}/approve`)).status).toBe(400)
+    expect((await client.get('/api/student/dashboard')).body.groups.some((group: { id: string }) => group.id === groupId)).toBe(true)
+    const notes = await client.get('/api/notifications')
+    expect(notes.body.notifications.some((item: { title: string }) => item.title.includes('tasdiqlandi'))).toBe(true)
   })
 
   it('ustoz faqat o‘z guruhini boshqaradi', async () => {
@@ -157,6 +189,10 @@ describe('Guruh, davomat, baholash va reyting', () => {
     expect((await client.put(`/api/teacher/groups/${groupId}/assessments`).send({ date, items: [{ studentId, activityScore: 11, homeworkScore: 5 }] })).status).toBe(400)
     expect((await client.put(`/api/teacher/groups/${groupId}/assessments`).send({ date, items: [{ studentId, activityScore: 8, homeworkScore: 6 }] })).status).toBe(200)
 
+    // davomat belgilanishi bilan ball darhol yoziladi (faollik/topshiriq keyinroq qo'yiladi)
+    const student0 = (await login(studentEmail, 'YangiParol1')).client
+    const results = await student0.get('/api/student/results')
+    expect(results.body.assessments.length).toBeGreaterThan(0)
     const saved = await prisma.assessment.findFirstOrThrow({ where: { groupId, studentId } })
     expect(saved.attendanceScore).toBe(10)
     expect(saved.total).toBe(24)
@@ -172,6 +208,10 @@ describe('Guruh, davomat, baholash va reyting', () => {
     await client.put(`/api/teacher/groups/${groupId}/attendance`).send({ date, records: [{ studentId, present: false }] })
     const after = await student.get(`/api/ratings/students?groupId=${groupId}`)
     expect(after.body.me.points).toBe(14)
+
+    // o'quvchi umumiy reytingni ko'rmaydi: guruh berilmasa ham faqat o'z guruhi reytingi qaytadi
+    const own = await student.get('/api/ratings/students')
+    expect(own.body.groupId).toBe(groupId)
   })
 
   it('o‘quvchi o‘z natijalarini ko‘radi, ustozga baho beradi', async () => {

@@ -37,10 +37,10 @@ export default function WelcomeScreen({ onPick }) {
         </div>
         <p className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-violet-400/20 bg-violet-500/10 px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-violet-300">
           <SparkIcon className="h-3 w-3" />
-          Gemini AI bilan ishlaydi
+          Matn va rasm tahlili
         </p>
         <h1 className="text-2xl font-semibold text-white sm:text-3xl">
-          Assalomu alaykum! Men <span className="bg-gradient-to-r from-violet-300 to-indigo-300 bg-clip-text text-transparent">Ustoz yordamchi</span>
+          Assalomu alaykum! Men <span className="bg-gradient-to-r from-violet-300 to-indigo-300 bg-clip-text text-transparent">UstozTop AI</span>
         </h1>
         <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-[#a39fbd] sm:text-[15px]">
           Masalani suratga oling yoki rasmni yuklang — birga tahlil qilib, yechimini bosqichma-bosqich topamiz.

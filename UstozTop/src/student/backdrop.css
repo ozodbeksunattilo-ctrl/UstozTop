@@ -12,7 +12,7 @@
 .subject-float-3 { right: 14%; bottom: 16%; animation-delay: -3s; }
 .subject-float-4 { bottom: 12%; left: 12%; animation-delay: -6s; }
 .subject-float-5 { top: 8%; left: 48%; animation-delay: -1s; }
-.subject-backdrop-center { position: absolute; top: 50%; left: 62%; display: grid; width: 96px; height: 96px; place-items: center; border: 1px solid color-mix(in srgb, var(--subject-accent) 45%, transparent); border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--subject-accent) 22%, #151729), rgba(10, 12, 24, .25)); color: color-mix(in srgb, var(--subject-accent) 72%, white); font-size: 36px; transform: translate(-50%, -50%); animation: subject-pulse 5s ease-in-out infinite; }
+.subject-backdrop-center { position: absolute; top: 50%; left: 62%; display: grid; width: 96px; height: 96px; place-items: center; border: 1px solid color-mix(in srgb, var(--subject-accent) 45%, transparent); border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--subject-accent) 22%, #141d36), rgba(10, 12, 24, .25)); color: color-mix(in srgb, var(--subject-accent) 72%, white); font-size: 36px; transform: translate(-50%, -50%); animation: subject-pulse 5s ease-in-out infinite; }
 
 .subject-backdrop-compact .subject-backdrop-glow { left: 78%; width: 130px; height: 110px; filter: blur(44px); }
 .subject-backdrop-compact .subject-orbit { left: 80%; width: 74px; height: 74px; }

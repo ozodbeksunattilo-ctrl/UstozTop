@@ -1,6 +1,7 @@
 import { FiAlertCircle, FiInbox, FiStar } from 'react-icons/fi'
 import { translate as t } from '../i18n.js'
 import { avatarStyle } from './avatar.js'
+import { formatShortDate, weekdayShort } from './time.js'
 import './ui.css'
 
 export function initialsOf(name = '') {
@@ -16,10 +17,14 @@ export function Avatar({ name, color, size = 40 }) {
 }
 
 export function Stars({ value = 0, count, language }) {
-  const rounded = Math.round(value)
   return (
     <span className="ui-stars" aria-label={`${value} / 5`}>
-      {[1, 2, 3, 4, 5].map((star) => <FiStar key={star} className={star <= rounded ? 'is-on' : ''} aria-hidden="true" />)}
+      {[1, 2, 3, 4, 5].map((star) => (
+        <span key={star} className="ui-star" aria-hidden="true">
+          <FiStar />
+          {value >= star - 0.25 ? <FiStar className="is-on ui-star-fill" /> : value >= star - 0.75 ? <FiStar className="is-on ui-star-fill ui-star-half" /> : null}
+        </span>
+      ))}
       <strong>{value ? value.toFixed(1) : '—'}</strong>
       {count !== undefined && <small>({count}{language ? ` ${t(language, 'baho')}` : ''})</small>}
     </span>
@@ -52,15 +57,13 @@ export function Empty({ title, detail, action }) {
 }
 
 export function formatDate(value, language) {
-  const locale = language === 'ru' ? 'ru-RU' : language === 'en' ? 'en-US' : language === 'uz-Cyrl' ? 'uz-Cyrl-UZ' : 'uz-UZ'
-  return new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(value))
+  return formatShortDate(value, language)
 }
 
 export const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0]
 
 export function dayLabel(language, day) {
-  const locale = language === 'ru' ? 'ru-RU' : language === 'en' ? 'en-US' : language === 'uz-Cyrl' ? 'uz-Cyrl-UZ' : 'uz-UZ'
-  return new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(new Date(2024, 0, 1 + DAY_ORDER.indexOf(day)))
+  return weekdayShort(language, day)
 }
 
 export function daysText(language, days) {

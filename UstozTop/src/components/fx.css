@@ -1,0 +1,163 @@
+/* Umumiy: brend, uchib yuruvchi fon, sahifa o'tishlari, xabarnomalar va yangi bo'limlar uslubi */
+.auth, .student-app, .role-app { --gold: #8b6cff; --gold-deep: #6c4df0; --gold-soft: #c4afff; --navy: #0a1020; }
+
+/* ---- Logotip va brend nomi ---- */
+.logo-mark { position: relative; display: inline-block; flex: none; overflow: hidden; background: #10204a; box-shadow: 0 0 0 1px rgba(139, 108, 255, .55), 0 6px 18px rgba(0, 0, 0, .35); }
+.logo-mark img { position: absolute; top: 50%; left: 50%; width: 160%; max-width: none; transform: translate(-52.4%, -44.3%); user-select: none; }
+.brand-name {
+  font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif; font-weight: 700; letter-spacing: -.015em; line-height: 1;
+  background: linear-gradient(100deg, #c4afff 0%, #8b6cff 48%, #38d0e0 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+[data-theme="light"] .brand-name { background-image: linear-gradient(100deg, #6a45e6 0%, #5f3ce0 50%, #38d0e0 100%); }
+.auth-brand .brand-name { font-size: clamp(28px, 3.2vw, 40px); }
+.student-brand .brand-name { font-size: 26px; }
+.role-head-brand .brand-name { font-size: 25px; }
+.role-brand .brand-name { font-size: 26px; }
+.auth-brand, .student-brand, .role-head-brand, .role-brand { gap: 12px; }
+
+/* ---- Uchib yuruvchi elementlar ---- */
+.floaters { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; --floater: var(--gold); }
+.floater {
+  position: absolute; color: var(--floater); font-family: Georgia, "Times New Roman", serif; font-weight: 700; line-height: 1; white-space: nowrap; opacity: .2;
+  animation: floater-float 14s ease-in-out infinite alternate; will-change: transform; user-select: none;
+}
+[data-theme="light"] .floater { opacity: .26; color: color-mix(in srgb, var(--floater) 70%, #5a3d08); }
+.floater-sway { animation-name: floater-sway; }
+.floater-bob { animation-name: floater-bob; }
+.floater-spin { animation-name: floater-spin; animation-timing-function: linear; animation-direction: normal; }
+.floater-orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .2; animation: floater-orb 22s ease-in-out infinite alternate; }
+.floater-orb-1 { top: -12%; right: -8%; width: 40vw; height: 40vw; background: var(--floater); }
+.floater-orb-2 { bottom: -18%; left: -10%; width: 36vw; height: 36vw; background: #3a5fcf; animation-delay: -9s; opacity: .16; }
+[data-theme="light"] .floater-orb { opacity: .14; }
+.floaters-auth .floater { opacity: .3; }
+@keyframes floater-float { from { transform: translate3d(0, 0, 0) rotate(-6deg); } to { transform: translate3d(22px, -48px, 0) rotate(7deg); } }
+@keyframes floater-sway { from { transform: translate3d(-18px, 0, 0) rotate(-10deg); } to { transform: translate3d(26px, -22px, 0) rotate(10deg); } }
+@keyframes floater-bob { 0% { transform: translate3d(0, 14px, 0) scale(.92); } 100% { transform: translate3d(8px, -34px, 0) scale(1.1); } }
+@keyframes floater-spin { from { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.2); } to { transform: rotate(360deg) scale(1); } }
+@keyframes floater-orb { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(-6vw, 5vh, 0) scale(1.18); } }
+.student-content, .role-content { position: relative; z-index: 1; }
+.student-app, .role-app { position: relative; }
+.role-main { position: relative; z-index: 1; }
+
+/* ---- Sahifalar orasidagi o'tish ---- */
+.page-enter { animation: page-in .5s cubic-bezier(.2, .7, .2, 1) both; }
+.page-enter > * { animation: page-item .55s cubic-bezier(.2, .7, .2, 1) both; }
+.page-enter > *:nth-child(2) { animation-delay: .06s; }
+.page-enter > *:nth-child(3) { animation-delay: .12s; }
+.page-enter > *:nth-child(4) { animation-delay: .18s; }
+.page-enter > *:nth-child(n+5) { animation-delay: .24s; }
+@keyframes page-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes page-item { from { opacity: 0; transform: translate3d(0, 18px, 0) scale(.985); } to { opacity: 1; transform: none; } }
+.pop-in { animation: pop-in .45s cubic-bezier(.2, .9, .3, 1.2) both; }
+@keyframes pop-in { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .floater, .floater-orb, .page-enter, .page-enter > *, .pop-in { animation: none !important; }
+}
+
+/* ---- Xabarnoma qo'ng'irog'i ---- */
+.bell { position: relative; flex: none; }
+.bell-button { position: relative; display: grid; width: 40px; height: 40px; place-items: center; border: 1px solid var(--ui-line, rgba(160, 165, 210, .2)); border-radius: 12px; background: var(--ui-panel, transparent); color: var(--ui-text, inherit); font-size: 18px; cursor: pointer; transition: border-color .2s, transform .15s; }
+.bell-button:hover { border-color: var(--gold); transform: translateY(-1px); }
+.bell-badge { position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; border-radius: 999px; background: #e0524f; padding: 0 5px; color: #fff; font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; animation: bell-ping 2.4s ease-in-out infinite; }
+@keyframes bell-ping { 0%, 100% { box-shadow: 0 0 0 0 rgba(224, 82, 79, .5); } 60% { box-shadow: 0 0 0 7px rgba(224, 82, 79, 0); } }
+.bell-panel { position: absolute; top: calc(100% + 10px); right: 0; z-index: 60; width: min(380px, calc(100vw - 24px)); max-height: 70vh; overflow: auto; border: 1px solid var(--ui-line, rgba(160, 165, 210, .2)); border-radius: 18px; background: var(--ui-panel, #111a30); color: var(--ui-text, inherit); box-shadow: 0 24px 60px rgba(0, 0, 0, .4); animation: pop-in .25s ease both; transform-origin: top right; }
+.bell-panel header { position: sticky; top: 0; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--ui-line); background: inherit; padding: 14px 16px; }
+.bell-panel header span { display: inline-flex; align-items: center; gap: 5px; color: var(--ui-muted); font-size: 12px; }
+.bell-panel ul { margin: 0; padding: 6px; list-style: none; }
+.bell-panel li { display: flex; gap: 12px; border-radius: 12px; padding: 11px 10px; }
+.bell-panel li:hover { background: color-mix(in srgb, var(--gold) 8%, transparent); }
+.bell-panel li > i { display: grid; flex: none; width: 36px; height: 36px; place-items: center; border-radius: 11px; background: color-mix(in srgb, var(--ui-muted) 18%, transparent); color: var(--ui-muted); font-size: 17px; }
+.bell-panel li.is-lesson > i { background: color-mix(in srgb, var(--gold) 22%, transparent); color: var(--gold); }
+.bell-panel li > span { display: grid; gap: 2px; min-width: 0; }
+.bell-panel li strong { font-size: 14px; }
+.bell-panel li small { color: var(--ui-muted); font-size: 13px; line-height: 1.4; }
+.bell-panel li em { color: var(--ui-muted); font-size: 11px; font-style: normal; opacity: .75; }
+.bell-empty { margin: 0; padding: 28px 16px; color: var(--ui-muted); text-align: center; font-size: 14px; }
+
+/* ---- Bugungi dars e'loni (o'quvchi) ---- */
+.today-banner { position: relative; display: flex; align-items: center; gap: 16px; overflow: hidden; margin-bottom: 18px; border: 1px solid color-mix(in srgb, var(--accent, var(--gold)) 45%, transparent); border-radius: 20px; background: linear-gradient(110deg, color-mix(in srgb, var(--accent, var(--gold)) 20%, var(--student-panel)), var(--student-panel) 70%); padding: 16px 20px; animation: page-item .6s ease both; }
+.today-banner::after { content: ""; position: absolute; top: -40%; right: -4%; width: 180px; height: 180px; border-radius: 50%; background: var(--accent, var(--gold)); filter: blur(70px); opacity: .22; animation: floater-orb 10s ease-in-out infinite alternate; }
+.today-banner-icon { position: relative; display: grid; flex: none; width: 50px; height: 50px; place-items: center; border-radius: 16px; background: var(--accent, var(--gold)); color: #ffffff; font-size: 24px; animation: bell-wiggle 3s ease-in-out infinite; }
+@keyframes bell-wiggle { 0%, 80%, 100% { transform: rotate(0); } 85% { transform: rotate(-14deg); } 90% { transform: rotate(12deg); } 95% { transform: rotate(-8deg); } }
+.today-banner-text { position: relative; display: grid; gap: 2px; min-width: 0; flex: 1; }
+.today-banner-text strong { font-size: 17px; }
+.today-banner-text span { color: var(--student-muted); font-size: 14px; }
+.today-banner-time { position: relative; flex: none; border-radius: 12px; background: color-mix(in srgb, var(--student-bg) 70%, transparent); padding: 8px 14px; font-size: 18px; font-weight: 750; font-variant-numeric: tabular-nums; }
+.today-banner + .today-banner { margin-top: -6px; }
+
+/* ---- Salom satri ---- */
+.live-clock { font-variant-numeric: tabular-nums; }
+
+/* ---- Ustoz: qo'shilish so'rovlari ---- */
+.request-list { display: grid; gap: 10px; }
+.request-row { display: flex; align-items: center; gap: 14px; border: 1px solid var(--ui-line); border-left: 4px solid var(--subject-accent, var(--gold)); border-radius: 14px; background: var(--ui-field); padding: 12px 14px; animation: page-item .4s ease both; }
+.request-body { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.request-body small { color: var(--ui-muted); }
+.request-group { display: flex; align-items: center; gap: 6px; color: var(--ui-text) !important; font-weight: 600; }
+.request-group i { width: 8px; height: 8px; border-radius: 50%; background: var(--subject-accent, var(--gold)); }
+.request-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+@media (max-width: 640px) { .request-row { flex-wrap: wrap; } .request-actions { width: 100%; } }
+
+/* ---- Admin: ustozlar ---- */
+.teacher-credentials { display: grid; gap: 10px; margin: 6px 0 14px; }
+.teacher-credentials > div { display: grid; gap: 4px; border: 1px dashed color-mix(in srgb, var(--gold) 60%, transparent); border-radius: 14px; background: color-mix(in srgb, var(--gold) 9%, transparent); padding: 12px 16px; }
+.teacher-credentials small { color: var(--ui-muted); text-transform: uppercase; letter-spacing: .06em; font-size: 11px; }
+.teacher-credentials strong { font-size: 18px; letter-spacing: .02em; word-break: break-all; user-select: all; }
+.teacher-password { display: flex; gap: 8px; }
+.teacher-password input { flex: 1; min-width: 0; }
+.teacher-subjects-field > span { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+.teacher-subject-picks { display: flex; flex-wrap: wrap; gap: 8px; max-height: 190px; overflow: auto; }
+.teacher-subject-picks button { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--ui-line); border-radius: 999px; background: var(--ui-field); padding: 6px 12px 6px 6px; color: var(--ui-text); font: inherit; font-size: 14px; cursor: pointer; transition: border-color .2s, background .2s, transform .15s; }
+.teacher-subject-picks button i { display: grid; width: 26px; height: 26px; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--tile) 25%, transparent); color: var(--tile); font-size: 13px; font-style: normal; }
+.teacher-subject-picks button:hover { transform: translateY(-1px); }
+.teacher-subject-picks button.is-on { border-color: var(--tile); background: color-mix(in srgb, var(--tile) 16%, transparent); }
+.teacher-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.teacher-chips span { border-radius: 999px; background: color-mix(in srgb, var(--tile) 18%, transparent); padding: 2px 9px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+
+/* ---- Auth: katta brend va logotip ---- */
+.auth-hero-logo { display: flex; align-items: center; gap: 18px; margin-bottom: 26px; animation: auth-rise .7s ease both; }
+.auth-hero-logo .brand-name { font-size: clamp(44px, 6vw, 76px); }
+.auth-hero-logo .logo-mark { animation: logo-glow 5s ease-in-out infinite alternate; }
+@keyframes logo-glow { from { box-shadow: 0 0 0 1px rgba(139, 108, 255, .5), 0 8px 30px rgba(139, 108, 255, .15); } to { box-shadow: 0 0 0 1px rgba(139, 108, 255, .9), 0 8px 44px rgba(139, 108, 255, .45); } }
+.auth-hero-tag { display: block; margin-top: 6px; color: var(--a-muted); font-family: Georgia, serif; font-size: clamp(14px, 1.4vw, 18px); font-style: italic; letter-spacing: .02em; }
+@media (max-width: 640px) { .auth-hero-logo { margin-bottom: 14px; gap: 12px; } .auth-hero-logo .logo-mark { width: 56px !important; height: 56px !important; } }
+.auth-note-strong { align-items: center; border: 1px solid var(--a-line); border-radius: 12px; background: var(--a-field); padding: 10px 12px; }
+
+/* ---- O'quvchi: guruhga qo'shilish holatlari ---- */
+.join-pending { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; background: color-mix(in srgb, #e3ad58 18%, transparent); padding: 6px 12px; color: #e3ad58; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.join-pending i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: bell-ping 1.8s infinite; }
+.grow-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.grow-actions .ui-btn-link { border: 0; background: none; padding: 0; color: var(--ui-muted); font: inherit; font-size: 12px; text-decoration: underline; cursor: pointer; }
+
+/* ---- Reyting va natijalar: fan tanlash ---- */
+.subject-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.subject-tab { display: inline-flex; align-items: center; gap: 9px; border: 1px solid var(--ui-line); border-radius: 14px; background: var(--ui-field); padding: 8px 14px 8px 8px; color: var(--ui-text); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: border-color .2s, background .2s, transform .15s; }
+.subject-tab i { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 10px; background: color-mix(in srgb, var(--tab) 22%, transparent); color: var(--tab); font-size: 15px; font-style: normal; }
+.subject-tab:hover { transform: translateY(-1px); border-color: var(--tab); }
+.subject-tab.is-active { border-color: var(--tab); background: color-mix(in srgb, var(--tab) 14%, var(--ui-field)); box-shadow: 0 8px 22px color-mix(in srgb, var(--tab) 22%, transparent); }
+.rank-hero { position: relative; display: grid; gap: 4px; overflow: hidden; }
+.rank-hero::before { content: ""; position: absolute; top: -30%; right: -20%; width: 220px; height: 220px; border-radius: 50%; background: var(--tab, var(--gold)); filter: blur(70px); opacity: .25; }
+.rank-hero > * { position: relative; }
+.rank-medal { display: inline-grid; width: 30px; height: 30px; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--medal, #959bb8) 28%, transparent); color: var(--medal, inherit); font-size: 13px; font-weight: 800; }
+.medal-1 { --medal: #f0b73c; } .medal-2 { --medal: #b9c2d4; } .medal-3 { --medal: #d08a55; }
+.result-summary { display: grid; gap: 12px; margin-bottom: 18px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.result-tile { position: relative; display: grid; gap: 8px; overflow: hidden; border: 1px solid var(--ui-line); border-radius: 18px; background: var(--ui-panel); padding: 16px; color: inherit; text-align: left; font: inherit; cursor: pointer; transition: transform .2s, border-color .2s; }
+.result-tile:hover, .result-tile.is-active { transform: translateY(-2px); border-color: var(--tab); }
+.result-tile::before { content: ""; position: absolute; inset: 0 0 auto; height: 3px; background: var(--tab); }
+.result-tile header { display: flex; align-items: center; gap: 10px; }
+.result-tile header i { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 11px; background: color-mix(in srgb, var(--tab) 22%, transparent); color: var(--tab); font-style: normal; }
+.result-tile dl { display: grid; gap: 2px 16px; margin: 0; grid-template-columns: repeat(3, auto); justify-content: space-between; }
+.result-tile dt { color: var(--ui-muted); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+.result-tile dd { margin: 0; font-size: 20px; font-weight: 750; font-variant-numeric: tabular-nums; }
+
+/* ---- Tuzatishlar ---- */
+.join-member { display: inline-flex; align-items: center; border-radius: 999px; background: rgba(71, 201, 149, .15); padding: 6px 14px; color: #47c995; font-size: 13px; font-weight: 700; }
+.ui-note { position: fixed; top: 76px; left: 50%; z-index: 80; width: min(560px, calc(100vw - 24px)); margin: 0 !important; transform: translateX(-50%); background: var(--ui-panel, #111a30); box-shadow: 0 18px 44px rgba(0, 0, 0, .4); animation: pop-in .3s both; }
+.auth-demo button:last-of-type { grid-column: 1 / -1; }
+.ui-star { position: relative; display: inline-flex; }
+.ui-star .ui-star-fill { position: absolute; inset: 0; }
+.ui-star .ui-star-half { clip-path: inset(0 50% 0 0); }
+.student-nav { flex-wrap: nowrap; min-width: 0; }
+.student-top-actions, .student-topbar-inner { min-width: 0; }
+@media (max-width: 1280px) { .student-nav-link { padding: 0 10px; } .student-nav-link span { font-size: 14px; } }
+@media (max-width: 1100px) { .student-nav-link span { display: none; } }

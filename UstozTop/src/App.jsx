@@ -4,21 +4,12 @@ import { api } from './api.js'
 import './components/auth.css'
 import AuthFooter from './components/AuthFooter.jsx'
 import AuthHeader from './components/AuthHeader.jsx'
+import Floaters from './components/Floaters.jsx'
 import Dashboard from './components/Dashboard.jsx'
 import LoginForm from './components/LoginForm.jsx'
 import WelcomePanel from './components/WelcomePanel.jsx'
 import { LANGUAGE_KEY, THEME_KEY, translate as t } from './i18n.js'
 import { navigate, roleHome, usePath } from './router.js'
-
-const BACKGROUND_SYMBOLS = [
-  ['x² + y² = r²', '16%', '6%', '-1s'],
-  ['E = mc²', '30%', '44%', '-4s'],
-  ['Hello, world!', '72%', '8%', '-7s'],
-  ['H₂O', '82%', '52%', '-3s'],
-  ['</>', '12%', '62%', '-6s'],
-  ['π ≈ 3.14', '58%', '90%', '-2s'],
-  ['♫', '88%', '28%', '-9s'],
-]
 
 function readPreference(key, allowedValues, fallback) {
   try {
@@ -36,9 +27,7 @@ function AuthBackground() {
       <span className="auth-blob auth-blob-2" />
       <span className="auth-blob auth-blob-3" />
       <span className="auth-grid-bg" />
-      {BACKGROUND_SYMBOLS.map(([symbol, top, left, delay]) => (
-        <span key={symbol} className="auth-symbol" style={{ top, left, animationDelay: delay }}>{symbol}</span>
-      ))}
+      <Floaters variant="auth" />
     </div>
   )
 }

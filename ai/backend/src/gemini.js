@@ -17,7 +17,8 @@ Qoidalar:
 - Faqat o'quv va ta'limga oid mavzularda yordam bering.
 - Noto'g'ri, xavfli yoki noqonuniy so'rovlarga yordam bermang, muloyim rad eting.
 - Mavzuga oid bo'lmagan savolda qisqa javob berib, o'quv mavzusiga qaytishni taklif qiling.
-- Javobni keraksiz uzun qilmang, lekin savolga to'liq javob bering.
+- Javobni qisqa va aniq qiling: avval to'g'ridan-to'g'ri javob, keyin kerak bo'lsa qisqa izoh.
+- Rasmdagi masalani avval aniq o'qib yozing, so'ng yechimini bosqichma-bosqich ko'rsating.
 - Suhbat tarixini hisobga olib, kontekstni davom ettiring.`
 
 let client = null
@@ -69,7 +70,7 @@ function withTimeout(promise, ms) {
   let timer
   const timeout = new Promise((_, reject) => {
     timer = setTimeout(() => {
-      reject(new ChatError('Gemini javobi juda sekin keldi. Qayta urinib ko\'ring.', 504, 'TIMEOUT'))
+      reject(new ChatError('Javob juda sekin keldi. Qayta urinib ko\'ring.', 504, 'TIMEOUT'))
     }, ms)
   })
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer))
@@ -83,7 +84,7 @@ function classifyError(error) {
 
   if (/API key|API_KEY_INVALID|permission|unauthenticated/i.test(raw) || status === 401 || status === 403) {
     return new ChatError(
-      'Gemini API kaliti yaroqsiz yoki ruxsat yo\'q. ai/backend/.env faylidagi GEMINI_API_KEY ni tekshiring.',
+      'AI xizmatiga ulanish ruxsati yo‘q. Administratorga murojaat qiling.',
       502,
       'INVALID_API_KEY',
     )
@@ -91,7 +92,7 @@ function classifyError(error) {
 
   if (/quota|RESOURCE_EXHAUSTED|rate limit/i.test(raw) || status === 429) {
     return new ChatError(
-      'Gemini bepul limiti tugagan bo\'lishi mumkin. Birozdan so\'ng qayta urinib ko\'ring.',
+      'AI hozir juda band. Birozdan so‘ng qayta urinib ko‘ring.',
       429,
       'QUOTA_EXCEEDED',
     )
@@ -99,7 +100,7 @@ function classifyError(error) {
 
   if (/fetch failed|ENOTFOUND|ECONNREFUSED|ECONNRESET|ETIMEDOUT|network|socket hang up/i.test(raw)) {
     return new ChatError(
-      'Internet aloqasi yo\'q yoki Gemini serveriga ulanib bo\'lmadi. Ulanishni tekshiring.',
+      'Internet aloqasi yo\'q yoki AI serveriga ulanib bo\'lmadi. Ulanishni tekshiring.',
       503,
       'NETWORK_ERROR',
     )
@@ -107,7 +108,7 @@ function classifyError(error) {
 
   if (status === 404 || /not found|not supported|no longer available/i.test(raw)) {
     return new ChatError(
-      'Tanlangan Gemini modeli mavjud emas. ai/backend/.env ichidagi GEMINI_MODEL ni tekshiring.',
+      'AI modeli hozircha mavjud emas. Birozdan so‘ng qayta urinib ko‘ring.',
       502,
       'MODEL_NOT_FOUND',
     )
@@ -115,7 +116,7 @@ function classifyError(error) {
 
   if (status === 503 || /UNAVAILABLE|high demand|overloaded|try again later/i.test(raw)) {
     return new ChatError(
-      'Gemini serveri hozir band. Birozdan so\'ng qayta urinib ko\'ring.',
+      'AI serveri hozir band. Birozdan so\'ng qayta urinib ko\'ring.',
       503,
       'UNAVAILABLE',
     )
@@ -128,20 +129,23 @@ function classifyError(error) {
   return new ChatError('Kutilmagan xatolik yuz berdi. Birozdan so\'ng qayta urinib ko\'ring.', 500, 'UPSTREAM_ERROR')
 }
 
+// "Fikrlash" bosqichi o'chirilgan: oddiy o'quv savollarida javob bir necha barobar tezroq keladi.
+// Model bu sozlamani qabul qilmasa, xuddi shu model sozlamasiz qayta so'raladi.
 async function generateWithModel(ai, model, contents) {
-  const response = await withTimeout(
-    ai.models.generateContent({
-      model,
-      contents,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        temperature: 0.7,
-        maxOutputTokens: 2048,
-      },
-    }),
-    config.requestTimeoutMs,
-  )
+  const baseConfig = {
+    systemInstruction: SYSTEM_INSTRUCTION,
+    temperature: 0.6,
+    maxOutputTokens: config.maxOutputTokens,
+  }
+  const run = (extra) => withTimeout(ai.models.generateContent({ model, contents, config: { ...baseConfig, ...extra } }), config.requestTimeoutMs)
 
+  let response
+  try {
+    response = await run({ thinkingConfig: { thinkingBudget: 0 } })
+  } catch (error) {
+    if (error?.status !== 400) throw error
+    response = await run({})
+  }
   return typeof response?.text === 'string' ? response.text.trim() : ''
 }
 
@@ -150,7 +154,7 @@ export async function generateReply(messages) {
 
   if (!ai) {
     throw new ChatError(
-      'GEMINI_API_KEY sozlanmagan. ai/backend/.env fayliga API kalitini qo\'shing.',
+      'AI xizmati hali sozlanmagan. Administratorga murojaat qiling.',
       503,
       'MISSING_API_KEY',
     )
@@ -169,7 +173,7 @@ export async function generateReply(messages) {
     try {
       const text = await generateWithModel(ai, model, contents)
       if (!text) {
-        throw new ChatError('Gemini bo\'sh javob qaytardi. Savolni boshqacha yozib ko\'ring.', 502, 'EMPTY_RESPONSE')
+        throw new ChatError('AI bo\'sh javob qaytardi. Savolni boshqacha yozib ko\'ring.', 502, 'EMPTY_RESPONSE')
       }
       return { text, model }
     } catch (error) {

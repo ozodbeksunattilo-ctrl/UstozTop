@@ -3,7 +3,7 @@ import { ArrowLeftIcon, LogoIcon, TrashIcon } from './Icons.jsx'
 const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'http://localhost:5173/'
 
 const STATUS_MAP = {
-  online: { dot: 'bg-emerald-400', ring: 'bg-emerald-400/30', text: 'Onlayn · Gemini AI' },
+  online: { dot: 'bg-emerald-400', ring: 'bg-emerald-400/30', text: 'Onlayn · matn va rasm tahlili' },
   checking: { dot: 'bg-amber-400', ring: 'bg-amber-400/30', text: 'Ulanmoqda...' },
   offline: { dot: 'bg-rose-500', ring: 'bg-rose-500/30', text: 'Oflayn · server bilan aloqa yo\'q' },
   unconfigured: { dot: 'bg-amber-400', ring: 'bg-amber-400/30', text: 'API kaliti sozlanmagan' },
@@ -36,12 +36,6 @@ export default function ChatHeader({ status, model, onClear, hasMessages, onBack
           <p className="flex items-center gap-1.5 truncate text-[11px] text-[#8f8aa8] sm:text-xs">
             <span className={`inline-block h-1.5 w-1.5 rounded-full ${state.dot}`} />
             <span className="truncate">{state.text}</span>
-            {status === 'online' && model && (
-              <>
-                <span className="hidden text-[#4f4b66] sm:inline">•</span>
-                <span className="hidden truncate text-[#6f6a8a] sm:inline">{model}</span>
-              </>
-            )}
           </p>
         </div>
       </div>

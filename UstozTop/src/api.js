@@ -8,7 +8,7 @@ export class ApiError extends Error {
   }
 }
 
-async function request(method, path, body) {
+async function request(method, path, body, signal) {
   let response
   try {
     response = await fetch(`/api${path}`, {
@@ -16,8 +16,10 @@ async function request(method, path, body) {
       credentials: 'same-origin',
       headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
       body: body === undefined ? undefined : JSON.stringify(body),
+      signal,
     })
-  } catch {
+  } catch (error) {
+    if (error?.name === 'AbortError') throw error
     throw new ApiError('Serverga ulanib bo‘lmadi. Internetni tekshirib, qayta urinib ko‘ring.', 0, 'NETWORK')
   }
   let data = null
@@ -33,7 +35,7 @@ async function request(method, path, body) {
 }
 
 export const api = {
-  get: (path) => request('GET', path),
+  get: (path, signal) => request('GET', path, undefined, signal),
   post: (path, body = {}) => request('POST', path, body),
   put: (path, body = {}) => request('PUT', path, body),
   patch: (path, body = {}) => request('PATCH', path, body),

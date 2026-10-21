@@ -1,6 +1,6 @@
 import { FiMoon, FiSun } from 'react-icons/fi'
 import LanguageSelect from './LanguageSelect.jsx'
-import logo from '../assets/UstozTop.jpg'
+import { BrandName, LogoMark } from './Brand.jsx'
 import { translate as t } from '../i18n.js'
 
 function AuthHeader({ language, onLanguageChange, theme, onThemeToggle }) {
@@ -10,8 +10,8 @@ function AuthHeader({ language, onLanguageChange, theme, onThemeToggle }) {
   return (
     <header className="auth-header">
       <a href="/" className="auth-brand" aria-label={`UstozTop ${t(language, 'Bosh sahifa')}`}>
-        <img src={logo} alt="" />
-        <span>UstozTop</span>
+        <LogoMark size={52} />
+        <BrandName />
       </a>
 
       <nav className="auth-tools" aria-label={t(language, 'Til va mavzuni tanlash')}>

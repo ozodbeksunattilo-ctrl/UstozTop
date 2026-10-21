@@ -69,7 +69,7 @@ app.listen(config.port, () => {
   console.log(`Model: ${config.model}`)
   console.log(
     hasApiKey()
-      ? 'GEMINI_API_KEY aniqlandi.'
-      : 'DIQQAT: GEMINI_API_KEY topilmadi. ai/backend/.env faylini to\'ldiring.',
+      ? 'AI kaliti aniqlandi.'
+      : 'DIQQAT: AI kaliti topilmadi. ai/backend/.env faylini to\'ldiring.',
   )
 })

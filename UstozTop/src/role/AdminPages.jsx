@@ -154,19 +154,49 @@ function Users({ language, onNotice, fixedRole }) {
   )
 }
 
-function TeacherDialog({ language, onClose, onSaved, onNotice }) {
-  const [form, setForm] = useState({ firstName: '', lastName: '', identifier: '', password: '', qualification: '', experienceYears: '' })
+// Parol: kamida bitta harf va raqam, 10 ta belgi (o'xshash belgilar chiqarib tashlangan).
+function makePassword() {
+  const letters = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ'
+  const digits = '23456789'
+  const pool = letters + digits
+  const bytes = crypto.getRandomValues(new Uint32Array(10))
+  const source = (index) => (index === 0 ? letters : index === 1 ? digits : pool)
+  return Array.from(bytes, (value, index) => source(index)[value % source(index).length]).join('')
+}
+
+function TeacherDialog({ teacher, subjects, language, onClose, onSaved, onNotice }) {
+  const editing = Boolean(teacher)
+  const [form, setForm] = useState({
+    firstName: teacher?.firstName ?? '',
+    lastName: teacher?.lastName ?? '',
+    identifier: teacher?.email || teacher?.phone || '',
+    password: '',
+    qualification: teacher?.qualification ?? '',
+    experienceYears: teacher ? String(teacher.experienceYears) : '',
+    subjectIds: teacher?.subjects.map((subject) => subject.id) ?? [],
+  })
   const [busy, setBusy] = useState(false)
+  const [created, setCreated] = useState(null)
   const set = (key) => (event) => setForm((current) => ({ ...current, [key]: event.target.value }))
+  const toggleSubject = (id) => setForm((current) => ({ ...current, subjectIds: current.subjectIds.includes(id) ? current.subjectIds.filter((item) => item !== id) : [...current.subjectIds, id] }))
 
   async function submit(event) {
     event.preventDefault()
     setBusy(true)
     try {
-      await api.post('/admin/teachers', { ...form, experienceYears: form.experienceYears ? Number(form.experienceYears) : undefined, qualification: form.qualification || undefined })
-      onNotice(t(language, 'Ustoz akkaunti yaratildi.'))
-      onSaved()
-      onClose()
+      const common = { qualification: form.qualification || undefined, experienceYears: form.experienceYears ? Number(form.experienceYears) : undefined, subjectIds: form.subjectIds }
+      if (editing) {
+        await api.patch(`/admin/teachers/${teacher.id}`, { firstName: form.firstName, lastName: form.lastName, ...common, password: form.password || undefined })
+        onNotice(t(language, form.password ? 'Ma’lumotlar va yangi parol saqlandi.' : 'Ustoz ma’lumotlari saqlandi.'))
+        onSaved()
+        if (form.password) setCreated({ identifier: form.identifier, password: form.password, name: `${form.firstName} ${form.lastName}` })
+        else onClose()
+      } else {
+        await api.post('/admin/teachers', { firstName: form.firstName, lastName: form.lastName, identifier: form.identifier, password: form.password, ...common })
+        onNotice(t(language, 'Ustoz akkaunti yaratildi.'))
+        onSaved()
+        setCreated({ identifier: form.identifier, password: form.password, name: `${form.firstName} ${form.lastName}` })
+      }
     } catch (error) {
       onNotice(t(language, error.message), true)
     } finally {
@@ -174,55 +204,106 @@ function TeacherDialog({ language, onClose, onSaved, onNotice }) {
     }
   }
 
+  if (created) {
+    const text = `UstozTop\nLogin: ${created.identifier}\nParol: ${created.password}`
+    return (
+      <Dialog title={t(language, 'Kirish ma’lumotlari tayyor')} subtitle={created.name} onClose={onClose} actions={<>
+        <button type="button" className="ui-btn" onClick={() => navigator.clipboard?.writeText(text).then(() => onNotice(t(language, 'Nusxalandi.')))}>{t(language, 'Nusxalash')}</button>
+        <button type="button" className="ui-btn ui-btn-primary" onClick={onClose}>{t(language, 'Tayyor')}</button>
+      </>}>
+        <div className="teacher-credentials">
+          <div><small>{t(language, 'Login')}</small><strong>{created.identifier}</strong></div>
+          <div><small>{t(language, 'Parol')}</small><strong>{created.password}</strong></div>
+        </div>
+        <p>{t(language, 'Shu ma’lumotlarni ustozga yetkazing. Parol keyinroq ko‘rsatilmaydi — kerak bo‘lsa yangisini o‘rnatasiz.')}</p>
+      </Dialog>
+    )
+  }
+
   return (
-    <Dialog title={t(language, 'Ustoz qo‘shish')} subtitle={t(language, 'Akkaunt darhol faol bo‘ladi. Parolni ustozga yetkazing.')} onClose={onClose}>
+    <Dialog wide title={t(language, editing ? 'Ustozni tahrirlash' : 'Ustoz qo‘shish')} subtitle={t(language, editing ? 'Fanlar va ma’lumotlarni yangilang, kerak bo‘lsa yangi parol bering.' : 'Login va parolni siz berasiz — ustoz shular bilan kiradi.')} onClose={onClose}>
       <form className="ui-form" onSubmit={submit}>
         <div className="ui-form-row">
           <label>{t(language, 'Ism')}<input value={form.firstName} onChange={set('firstName')} required minLength={2} /></label>
           <label>{t(language, 'Familiya')}<input value={form.lastName} onChange={set('lastName')} required minLength={2} /></label>
         </div>
-        <label>{t(language, 'Email yoki telefon')}<input value={form.identifier} onChange={set('identifier')} required /></label>
-        <label>{t(language, 'Vaqtinchalik parol')}<input type="password" autoComplete="new-password" value={form.password} onChange={set('password')} required minLength={8} placeholder={t(language, 'Kamida 8 ta belgi, harf va raqam')} /></label>
+        <label>{t(language, 'Login (email yoki telefon)')}<input value={form.identifier} onChange={set('identifier')} required readOnly={editing} /></label>
+        <label>{t(language, editing ? 'Yangi parol (o‘zgartirmasangiz bo‘sh qoldiring)' : 'Parol')}
+          <span className="teacher-password">
+            <input type="text" autoComplete="new-password" value={form.password} onChange={set('password')} required={!editing} minLength={8} placeholder={t(language, 'Kamida 8 ta belgi, harf va raqam')} />
+            <button type="button" className="ui-btn ui-btn-sm" onClick={() => setForm((current) => ({ ...current, password: makePassword() }))}>{t(language, 'Yaratish')}</button>
+          </span>
+        </label>
         <div className="ui-form-row">
           <label>{t(language, 'Malaka')}<input value={form.qualification} onChange={set('qualification')} /></label>
           <label>{t(language, 'Tajriba (yil)')}<input type="number" min="0" max="70" value={form.experienceYears} onChange={set('experienceYears')} /></label>
         </div>
-        <div className="ui-dialog-actions"><button type="button" className="ui-btn" onClick={onClose}>{t(language, 'Bekor qilish')}</button><button type="submit" className="ui-btn ui-btn-primary" disabled={busy}>{t(language, 'Ustozni qo‘shish')}</button></div>
+        <div className="teacher-subjects-field">
+          <span>{t(language, 'Qaysi fanlardan dars beradi')}</span>
+          <div className="teacher-subject-picks">
+            {subjects.map((subject) => (
+              <button type="button" key={subject.id} className={form.subjectIds.includes(subject.id) ? 'is-on' : ''} style={{ '--tile': subject.color }} onClick={() => toggleSubject(subject.id)} aria-pressed={form.subjectIds.includes(subject.id)}>
+                <i>{subject.icon}</i>{t(language, subject.name)}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="ui-dialog-actions"><button type="button" className="ui-btn" onClick={onClose}>{t(language, 'Bekor qilish')}</button><button type="submit" className="ui-btn ui-btn-primary" disabled={busy}>{t(language, editing ? 'Saqlash' : 'Ustozni qo‘shish')}</button></div>
       </form>
     </Dialog>
   )
 }
 
 function Teachers({ language, onNotice }) {
-  const pending = useApi('/admin/users?role=TEACHER&status=PENDING')
-  const [adding, setAdding] = useState(false)
-  const [version, setVersion] = useState(0)
-  const action = useStatusAction(language, onNotice, () => { pending.reload(); setVersion((value) => value + 1) })
+  const { data, error, loading, reload } = useApi('/admin/teachers')
+  const subjects = useApi('/admin/subjects')
+  const [dialog, setDialog] = useState(null)
+  const action = useStatusAction(language, onNotice, reload)
 
+  if (loading && !data) return <Loading language={language} />
+  if (error && !data) return <ErrorBox error={error} onRetry={reload} language={language} />
   return (
-    <div className="role-stack">
-      <Card title={t(language, 'Tasdiq kutayotgan ustozlar')} subtitle={t(language, 'Tasdiqlanmaguncha ustoz dashboardga kira olmaydi.')} icon={FiShield}
-        action={<button type="button" className="ui-btn ui-btn-primary ui-btn-sm" onClick={() => setAdding(true)}><FiPlus aria-hidden="true" /> {t(language, 'Ustoz qo‘shish')}</button>}>
-        {pending.loading && !pending.data ? <Loading language={language} /> : pending.data?.users.length ? pending.data.users.map((user) => (
-          <div className="role-recent" key={user.id}><Avatar name={user.fullName} size={38} /><span><strong>{user.fullName}</strong><small>{user.email || user.phone} · {formatDate(user.createdAt, language)}</small></span><UserActions user={user} language={language} ask={action.ask} /></div>
-        )) : <Empty title={t(language, 'Tasdiq kutayotgan ustoz yo‘q')} />}
-      </Card>
-      <Users key={version} language={language} onNotice={onNotice} fixedRole="TEACHER" />
-      {adding && <TeacherDialog language={language} onClose={() => setAdding(false)} onNotice={onNotice} onSaved={() => { pending.reload(); setVersion((value) => value + 1) }} />}
+    <Card title={t(language, 'Ustozlar')} subtitle={`${data.teachers.length} ${t(language, 'ta ustoz')} · ${t(language, 'hisobni faqat administrator yaratadi')}`} icon={FiUserCheck}
+      action={<button type="button" className="ui-btn ui-btn-primary ui-btn-sm" disabled={!subjects.data} onClick={() => setDialog({})}><FiPlus aria-hidden="true" /> {t(language, 'Ustoz qo‘shish')}</button>}>
+      {data.teachers.length ? (
+        <div className="ui-table-wrap">
+          <table className="ui-table">
+            <thead><tr><th>{t(language, 'Ustoz')}</th><th>{t(language, 'Login')}</th><th>{t(language, 'Fanlari')}</th><th className="num">{t(language, 'Guruh')}</th><th>{t(language, 'Holat')}</th><th /></tr></thead>
+            <tbody>
+              {data.teachers.map((teacher) => (
+                <tr key={teacher.id}>
+                  <td><span className="ui-person"><Avatar name={teacher.fullName} size={36} /><span><strong>{teacher.fullName}</strong><small>{teacher.qualification || '—'}</small></span></span></td>
+                  <td>{teacher.email || teacher.phone}</td>
+                  <td>{teacher.subjects.length ? <span className="teacher-chips">{teacher.subjects.map((subject) => <span key={subject.id} style={{ '--tile': subject.color }}>{subject.icon} {t(language, subject.name)}</span>)}</span> : <small>{t(language, 'Fan biriktirilmagan')}</small>}</td>
+                  <td className="num">{teacher.groupCount}</td>
+                  <td><StatusChip status={teacher.status} language={language} /></td>
+                  <td className="num">
+                    <span className="role-actions">
+                      <button type="button" className="ui-btn ui-btn-sm" aria-label={t(language, 'Tahrirlash')} onClick={() => setDialog(teacher)}><FiEdit2 aria-hidden="true" /></button>
+                      <UserActions user={{ ...teacher, role: 'TEACHER' }} language={language} ask={action.ask} />
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : <Empty title={t(language, 'Hali ustoz qo‘shilmagan')} detail={t(language, 'Ustoz qo‘shing: login, parol va fanlarni belgilang.')} />}
+      {dialog && subjects.data && <TeacherDialog teacher={dialog.id ? dialog : null} subjects={subjects.data.subjects.filter((subject) => subject.active)} language={language} onClose={() => setDialog(null)} onSaved={reload} onNotice={onNotice} />}
       {action.dialog}
-    </div>
+    </Card>
   )
 }
 
 function SubjectDialog({ subject, language, onClose, onSaved, onNotice }) {
-  const [form, setForm] = useState({ name: subject?.name ?? '', category: subject?.category ?? 'Aniq fanlar', icon: subject?.icon ?? '✦', color: subject?.color ?? '#8b6cff', totalLessons: subject?.totalLessons ?? 24, topics: (subject?.topics ?? []).join(', ') })
+  const [form, setForm] = useState({ name: subject?.name ?? '', category: subject?.category ?? 'Aniq fanlar', icon: subject?.icon ?? '✦', color: subject?.color ?? '#8b6cff', totalLessons: subject?.totalLessons ?? 24, description: subject?.description ?? '', topics: (subject?.topics ?? []).join(', ') })
   const [busy, setBusy] = useState(false)
   const set = (key) => (event) => setForm((current) => ({ ...current, [key]: event.target.value }))
 
   async function submit(event) {
     event.preventDefault()
     setBusy(true)
-    const body = { name: form.name, category: form.category, icon: form.icon, color: form.color, totalLessons: Number(form.totalLessons), topics: form.topics.split(',').map((item) => item.trim()).filter(Boolean) }
+    const body = { name: form.name, description: form.description, category: form.category, icon: form.icon, color: form.color, totalLessons: Number(form.totalLessons), topics: form.topics.split(',').map((item) => item.trim()).filter(Boolean) }
     try {
       if (subject) await api.patch(`/admin/subjects/${subject.id}`, body)
       else await api.post('/admin/subjects', body)
@@ -248,6 +329,7 @@ function SubjectDialog({ subject, language, onClose, onSaved, onNotice }) {
           <label>{t(language, 'Belgi')}<input value={form.icon} onChange={set('icon')} maxLength={8} required /></label>
           <label>{t(language, 'Rang')}<input type="color" value={form.color} onChange={set('color')} /></label>
         </div>
+        <label>{t(language, 'Qisqa tavsif')}<textarea value={form.description} onChange={set('description')} maxLength={600} /></label>
         <label>{t(language, 'Mavzular (vergul bilan)')}<textarea value={form.topics} onChange={set('topics')} /></label>
         <div className="ui-dialog-actions"><button type="button" className="ui-btn" onClick={onClose}>{t(language, 'Bekor qilish')}</button><button type="submit" className="ui-btn ui-btn-primary" disabled={busy}>{t(language, 'Saqlash')}</button></div>
       </form>
@@ -293,6 +375,13 @@ function Subjects({ language, onNotice }) {
   )
 }
 
+// Ustoz faqat o'zi dars beradigan fan guruhiga biriktiriladi (fan biriktirilmagan ustoz — hamma fanga).
+function teachersFor(teachers = [], subjectId, currentId) {
+  return teachers.filter((teacher) => teacher.id === currentId || (teacher.status === 'ACTIVE' && (!teacher.subjects.length || teacher.subjects.some((subject) => subject.id === subjectId))))
+}
+
+const teacherLabel = (teacher, language) => (teacher.status === 'ACTIVE' ? teacher.fullName : `${teacher.fullName} (${t(language, 'bloklangan')})`)
+
 function GroupDialog({ language, subjects, teachers, onClose, onSaved, onNotice }) {
   const [form, setForm] = useState({ name: '', subjectId: subjects[0]?.id ?? '', lessonTime: '14:00', daysOfWeek: [1, 3, 5], capacity: 20, teacherId: '' })
   const [busy, setBusy] = useState(false)
@@ -320,7 +409,7 @@ function GroupDialog({ language, subjects, teachers, onClose, onSaved, onNotice 
         <label>{t(language, 'Guruh nomi')}<input value={form.name} onChange={set('name')} required minLength={2} /></label>
         <div className="ui-form-row">
           <label>{t(language, 'Fan')}<select value={form.subjectId} onChange={set('subjectId')} required>{subjects.map((subject) => <option key={subject.id} value={subject.id}>{t(language, subject.name)}</option>)}</select></label>
-          <label>{t(language, 'Ustoz')}<select value={form.teacherId} onChange={set('teacherId')}><option value="">{t(language, 'Biriktirilmagan')}</option>{teachers.map((teacher) => <option key={teacher.id} value={teacher.id}>{teacher.fullName}</option>)}</select></label>
+          <label>{t(language, 'Ustoz')}<select value={form.teacherId} onChange={set('teacherId')}><option value="">{t(language, 'Biriktirilmagan')}</option>{teachersFor(teachers, form.subjectId).map((teacher) => <option key={teacher.id} value={teacher.id}>{teacher.fullName}</option>)}</select></label>
         </div>
         <div className="ui-form-row">
           <label>{t(language, 'Dars vaqti')}<input type="time" value={form.lessonTime} onChange={set('lessonTime')} required /></label>
@@ -336,7 +425,7 @@ function GroupDialog({ language, subjects, teachers, onClose, onSaved, onNotice 
 function Groups({ language, onNotice }) {
   const { data, error, loading, reload } = useApi('/admin/groups')
   const subjects = useApi('/admin/subjects')
-  const teachers = useApi('/admin/users?role=TEACHER&status=ACTIVE')
+  const teachers = useApi('/admin/teachers')
   const [adding, setAdding] = useState(false)
   const [toggle, setToggle] = useState(null)
 
@@ -376,7 +465,7 @@ function Groups({ language, onNotice }) {
                   <td>
                     <select className="ui-select ui-select-sm" aria-label={t(language, 'Ustoz biriktirish')} value={group.teacher?.id ?? ''} onChange={(event) => assign(group, event.target.value)}>
                       <option value="">{t(language, 'Biriktirilmagan')}</option>
-                      {(teachers.data?.users || []).map((teacher) => <option key={teacher.id} value={teacher.id}>{teacher.fullName}</option>)}
+                      {teachersFor(teachers.data?.teachers, group.subject.id, group.teacher?.id).map((teacher) => <option key={teacher.id} value={teacher.id}>{teacherLabel(teacher, language)}</option>)}
                     </select>
                   </td>
                   <td>{group.lessonTime}<br /><small>{daysText(language, group.daysOfWeek)}</small></td>
@@ -389,7 +478,7 @@ function Groups({ language, onNotice }) {
           </table>
         </div>
       ) : <Empty title={t(language, 'Guruhlar yo‘q')} />}
-      {adding && <GroupDialog language={language} subjects={subjects.data.subjects.filter((subject) => subject.active)} teachers={teachers.data?.users || []} onClose={() => setAdding(false)} onSaved={reload} onNotice={onNotice} />}
+      {adding && <GroupDialog language={language} subjects={subjects.data.subjects.filter((subject) => subject.active)} teachers={(teachers.data?.teachers || []).filter((teacher) => teacher.status === 'ACTIVE')} onClose={() => setAdding(false)} onSaved={reload} onNotice={onNotice} />}
       {toggle && <Dialog title={t(language, toggle.active ? 'Guruhni faolsizlantirasizmi?' : 'Guruhni faollashtirasizmi?')} subtitle={toggle.name} onClose={() => setToggle(null)} actions={<><button type="button" className="ui-btn" onClick={() => setToggle(null)}>{t(language, 'Bekor qilish')}</button><button type="button" className="ui-btn ui-btn-primary" onClick={confirmToggle}>{t(language, 'Tasdiqlash')}</button></>}><p>{t(language, 'Bu amal audit jurnaliga yoziladi.')}</p></Dialog>}
     </Card>
   )
@@ -431,20 +520,6 @@ function Suspicious({ language }) {
   )
 }
 
-function Activity({ language }) {
-  const { data, error, loading, reload } = useApi('/admin/audit?limit=100')
-  if (loading && !data) return <Loading language={language} />
-  if (error && !data) return <ErrorBox error={error} onRetry={reload} language={language} />
-  return (
-    <Card title={t(language, 'Faoliyat jurnali')} subtitle={t(language, 'Muhim admin va tizim amallari')} icon={FiActivity}>
-      {data.logs.length ? (
-        <div className="ui-table-wrap"><table className="ui-table"><thead><tr><th>{t(language, 'Vaqt')}</th><th>{t(language, 'Kim')}</th><th>{t(language, 'Amal')}</th><th>{t(language, 'Obyekt')}</th></tr></thead>
-          <tbody>{data.logs.map((log) => <tr key={log.id}><td>{new Date(log.createdAt).toLocaleString('uz-UZ')}</td><td>{log.actor}</td><td><code>{log.action}</code></td><td>{log.entity}</td></tr>)}</tbody></table></div>
-      ) : <Empty title={t(language, 'Jurnal bo‘sh')} />}
-    </Card>
-  )
-}
-
 function AdminPages({ page, language, onNotice, onGo }) {
   if (page === 'users') return <Users language={language} onNotice={onNotice} />
   if (page === 'teachers') return <Teachers language={language} onNotice={onNotice} />
@@ -452,7 +527,6 @@ function AdminPages({ page, language, onNotice, onGo }) {
   if (page === 'groups') return <Groups language={language} onNotice={onNotice} />
   if (page === 'ratings') return <Ratings language={language} />
   if (page === 'suspicious') return <Suspicious language={language} />
-  if (page === 'activity') return <Activity language={language} />
   return <Overview language={language} onGo={onGo} />
 }
 

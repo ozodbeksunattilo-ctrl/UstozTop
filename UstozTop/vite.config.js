@@ -42,9 +42,9 @@ function servicesPlugin() {
   return {
     name: 'ustoztop-services',
     configureServer(server) {
-      supervise(server, { name: 'PostgreSQL', port: DB_PORT, cwd: './server', command: process.execPath, args: ['node_modules/tsx/dist/cli.mjs', 'scripts/dev-db.ts'] })
-      supervise(server, { name: 'UstozTop API', port: API_PORT, cwd: './server', command: process.execPath, args: ['node_modules/tsx/dist/cli.mjs', 'src/index.ts'], after: DB_PORT })
-      supervise(server, { name: 'AI backend', port: AI_PORT, cwd: './ai/backend', command: process.execPath, args: ['src/index.js'] })
+      supervise(server, { name: 'PostgreSQL', port: DB_PORT, cwd: '../server', command: process.execPath, args: ['node_modules/tsx/dist/cli.mjs', 'scripts/dev-db.ts'] })
+      supervise(server, { name: 'UstozTop API', port: API_PORT, cwd: '../server', command: process.execPath, args: ['node_modules/tsx/dist/cli.mjs', 'src/index.ts'], after: DB_PORT })
+      supervise(server, { name: 'AI backend', port: AI_PORT, cwd: '../ai/backend', command: process.execPath, args: ['src/index.js'] })
     },
   }
 }

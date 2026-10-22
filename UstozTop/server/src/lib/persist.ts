@@ -56,6 +56,11 @@ export async function saveDatabase() {
 let queue: Promise<void> = Promise.resolve()
 
 export function databaseSession(_req: Request, res: Response, next: NextFunction) {
+  // Vercel'da fayl tizimi faqat o'qish uchun: Upstash Redis ulanmagan bo'lsa ma'lumot saqlanmaydi, shuning uchun aniq xabar beriladi.
+  if (process.env.VERCEL && !(kvUrl() && kvToken())) {
+    res.status(503).json({ error: 'Ma‘lumotlar bazasi ulanmagan: Vercel loyihasida Storage → Upstash Redis ni ulang va qayta deploy qiling.', code: 'DB_NOT_CONFIGURED' })
+    return
+  }
   const previous = queue
   let release!: () => void
   queue = new Promise<void>((resolveQueue) => (release = resolveQueue))

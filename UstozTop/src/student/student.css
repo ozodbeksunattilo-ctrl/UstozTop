@@ -19,7 +19,6 @@
 .student-topbar { position: sticky; top: 0; z-index: 30; border-bottom: 1px solid var(--student-border); background: color-mix(in srgb, var(--student-bg) 80%, transparent); backdrop-filter: blur(18px) saturate(1.4); }
 .student-topbar-inner { display: flex; width: min(1440px, 100%); align-items: center; gap: 18px; margin: 0 auto; padding: 12px clamp(16px, 3vw, 40px); }
 .student-brand { display: flex; flex: none; align-items: center; gap: 10px; color: var(--student-text); font-size: 20px; font-weight: 750; letter-spacing: -.02em; text-decoration: none; }
-.student-brand img { width: 42px; height: 42px; border-radius: 12px; border: 1px solid var(--student-border); object-fit: cover; }
 .student-nav { display: flex; align-items: center; gap: 4px; margin-left: 10px; }
 .student-nav-link { display: inline-flex; align-items: center; gap: 8px; height: 42px; border: 0; border-radius: 12px; background: none; padding: 0 14px; color: var(--student-muted); font-size: 15px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: background .2s, color .2s; }
 .student-nav-link svg { font-size: 18px; }

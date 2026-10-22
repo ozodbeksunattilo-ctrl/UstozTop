@@ -86,7 +86,7 @@ function RoleDashboard({ user, onLogout, onProfileUpdate, language, onLanguageCh
       {isAdmin && (
         <aside className={`role-sidebar ${menuOpen ? 'role-sidebar-open' : ''}`}>
           <a className="role-brand" href="#dashboard" onClick={(event) => { event.preventDefault(); selectPage('overview') }}>
-            <LogoMark size={46} /><span><BrandName /><small>{t(language, 'Boshqaruv paneli')}</small></span>
+            <LogoMark size={56} /><span><BrandName /><small>{t(language, 'Boshqaruv paneli')}</small></span>
           </a>
           <span className="role-nav-label">{t(language, 'PLATFORMA')}</span>
           <nav className="role-navigation" aria-label={t(language, 'Asosiy menyu')}>
@@ -115,7 +115,7 @@ function RoleDashboard({ user, onLogout, onProfileUpdate, language, onLanguageCh
             </>
           ) : (
             <>
-              <a className="role-head-brand" href="#dashboard" onClick={(event) => { event.preventDefault(); selectPage('overview') }}><LogoMark size={42} /><BrandName /></a>
+              <a className="role-head-brand" href="#dashboard" onClick={(event) => { event.preventDefault(); selectPage('overview') }}><LogoMark size={48} /><BrandName /></a>
               <nav className="role-head-nav" aria-label={t(language, 'Asosiy menyu')}>
                 {pages.map(({ id, label, icon: Icon }) => (
                   <button type="button" key={id} onClick={() => selectPage(id)} className={`role-head-link ${activePage === id ? 'is-active' : ''}`} aria-current={activePage === id ? 'page' : undefined}><Icon aria-hidden="true" /><span>{t(language, label)}</span></button>

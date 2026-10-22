@@ -232,7 +232,7 @@ function StudentDashboard({ user, onLogout, onProfileUpdate, language, onLanguag
       <header className="student-topbar">
         <div className="student-topbar-inner">
           <a className="student-brand" href="#overview" onClick={(event) => { event.preventDefault(); selectTab('overview') }} aria-label={`UstozTop ${t(language, 'Bosh sahifa')}`}>
-            <LogoMark size={44} />
+            <LogoMark size={56} />
             <BrandName />
           </a>
           <nav className="student-nav" aria-label={t(language, 'O‘quvchi bo‘limlari')}>

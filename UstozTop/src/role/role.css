@@ -48,14 +48,6 @@
   text-decoration: none;
 }
 
-.role-brand img {
-  width: 42px;
-  height: 42px;
-  flex: 0 0 auto;
-  border-radius: 11px;
-  object-fit: contain;
-}
-
 .role-brand > span { display: grid; gap: 3px; }
 .role-brand small { color: var(--role-muted); font-size: 12px; font-weight: 450; letter-spacing: 0; }
 .role-nav-label { margin: 0 10px 9px; color: #8389a6; font-size: 11px; font-weight: 750; letter-spacing: .12em; }
@@ -319,7 +311,6 @@
 .role-app-teacher .role-menu-toggle { display: none; }
 .role-top-avatar { cursor: pointer; }
 .role-head-brand { display: flex; flex: none; align-items: center; gap: 10px; color: var(--role-text); font-size: 19px; font-weight: 750; letter-spacing: -.02em; text-decoration: none; }
-.role-head-brand img { width: 40px; height: 40px; border-radius: 11px; border: 1px solid var(--role-line); object-fit: cover; }
 .role-head-nav { display: flex; align-items: center; gap: 4px; margin-left: 8px; }
 .role-head-link { display: inline-flex; align-items: center; gap: 8px; height: 40px; border: 0; border-radius: 11px; background: none; padding: 0 13px; color: var(--role-muted); font: inherit; font-size: 14px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: background .2s, color .2s; }
 .role-head-link svg { width: 17px; height: 17px; }

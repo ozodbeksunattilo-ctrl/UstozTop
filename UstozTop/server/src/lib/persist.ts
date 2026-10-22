@@ -7,8 +7,13 @@ import { store } from './jsondb.js'
 import { seedDatabase } from './seed.js'
 
 const KEY = 'ustoztop:db'
-const kvUrl = () => process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL
-const kvToken = () => process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN
+// Upstash integratsiyasi o'zgaruvchilarni KV_*, UPSTASH_REDIS_* yoki o'zingiz bergan prefiks (masalan STORAGE_*) bilan qo'shishi mumkin.
+function kvEnv(suffix: string, exclude?: RegExp) {
+  const key = Object.keys(process.env).find((name) => name.endsWith(suffix) && !(exclude && exclude.test(name)) && process.env[name])
+  return key ? process.env[key] : undefined
+}
+const kvUrl = () => kvEnv('REST_API_URL') || kvEnv('REDIS_REST_URL')
+const kvToken = () => kvEnv('REST_API_TOKEN', /READ_ONLY/) || kvEnv('REDIS_REST_TOKEN', /READ_ONLY/)
 const filePath = () => resolve(process.env.DB_FILE || 'server/data/db.json')
 
 async function kv(command: unknown[]) {

@@ -23,8 +23,36 @@ async function kv(command: unknown[]) {
   return data.result
 }
 
+// Supabase (Vercel integratsiyasi POSTGRES_URL beradi): JSON bitta qatorda, alohida "ustoztop" sxemasida saqlanadi
+// (public sxema emas, shuning uchun Supabase'ning ochiq REST API orqali ko'rinmaydi). Jadval o'zi yaratiladi.
+const pgUrl = () => process.env.POSTGRES_URL_NON_POOLING || process.env.POSTGRES_URL
+let pgPool: import('pg').Pool | null = null
+let pgReady = false
+
+async function pgQuery(text: string, values: unknown[] = []) {
+  if (!pgPool) {
+    const { default: pg } = await import('pg')
+    const url = new URL(pgUrl()!)
+    // sslmode va supa parametrlari pg bilan to'qnashadi; SSL quyida alohida yoqiladi (Supabase sertifikati o'z-o'zidan imzolangan)
+    url.searchParams.delete('sslmode')
+    url.searchParams.delete('supa')
+    pgPool = new pg.Pool({ connectionString: url.toString(), ssl: { rejectUnauthorized: false }, max: 1 })
+  }
+  if (!pgReady) {
+    await pgPool.query('create schema if not exists ustoztop')
+    await pgPool.query('create table if not exists ustoztop.kv (key text primary key, value text not null, updated_at timestamptz not null default now())')
+    await pgPool.query('alter table ustoztop.kv enable row level security')
+    pgReady = true
+  }
+  return pgPool.query(text, values)
+}
+
+const useKv = () => Boolean(kvUrl() && kvToken())
+const usePg = () => !useKv() && Boolean(pgUrl())
+
 async function readRaw(): Promise<string | null> {
-  if (kvUrl() && kvToken()) return ((await kv(['GET', KEY])) as string | null) ?? null
+  if (usePg()) return ((await pgQuery('select value from ustoztop.kv where key = $1', [KEY])).rows[0]?.value as string | undefined) ?? null
+  if (useKv()) return ((await kv(['GET', KEY])) as string | null) ?? null
   try {
     return await readFile(filePath(), 'utf8')
   } catch {
@@ -33,7 +61,11 @@ async function readRaw(): Promise<string | null> {
 }
 
 async function writeRaw(json: string) {
-  if (kvUrl() && kvToken()) {
+  if (usePg()) {
+    await pgQuery('insert into ustoztop.kv (key, value) values ($1, $2) on conflict (key) do update set value = excluded.value, updated_at = now()', [KEY, json])
+    return
+  }
+  if (useKv()) {
     await kv(['SET', KEY, json])
     return
   }
@@ -62,8 +94,8 @@ let queue: Promise<void> = Promise.resolve()
 
 export function databaseSession(_req: Request, res: Response, next: NextFunction) {
   // Vercel'da fayl tizimi faqat o'qish uchun: Upstash Redis ulanmagan bo'lsa ma'lumot saqlanmaydi, shuning uchun aniq xabar beriladi.
-  if (process.env.VERCEL && !(kvUrl() && kvToken())) {
-    res.status(503).json({ error: 'Ma‘lumotlar bazasi ulanmagan: Vercel loyihasida Storage → Upstash Redis ni ulang va qayta deploy qiling.', code: 'DB_NOT_CONFIGURED' })
+  if (process.env.VERCEL && !useKv() && !usePg()) {
+    res.status(503).json({ error: 'Ma‘lumotlar bazasi ulanmagan: Vercel loyihasida Storage → Supabase yoki Upstash Redis ni ulang va qayta deploy qiling.', code: 'DB_NOT_CONFIGURED' })
     return
   }
   const previous = queue

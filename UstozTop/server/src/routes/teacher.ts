@@ -167,6 +167,7 @@ teacherRouter.put('/groups/:id/attendance', async (req, res) => {
   const memberIds = new Set(group.memberships.map((item) => item.studentId))
   if (data.records.some((record) => !memberIds.has(record.studentId))) throw forbidden('Ro‘yxatda guruhga kirmaydigan o‘quvchi bor.')
   const date = startOfDay(data.date)
+  if (date.getTime() > todayUTC().getTime()) throw badRequest('Kelajakdagi sana uchun davomat va baho qo‘yib bo‘lmaydi.')
   await prisma.$transaction(
     data.records.flatMap((record) => {
       const ops: Promise<unknown>[] = [
@@ -217,6 +218,7 @@ teacherRouter.put('/groups/:id/assessments', async (req, res) => {
   const memberIds = new Set(group.memberships.map((item) => item.studentId))
   if (data.items.some((item) => !memberIds.has(item.studentId))) throw forbidden('Ro‘yxatda guruhga kirmaydigan o‘quvchi bor.')
   const date = startOfDay(data.date)
+  if (date.getTime() > todayUTC().getTime()) throw badRequest('Kelajakdagi sana uchun davomat va baho qo‘yib bo‘lmaydi.')
   const attendance = await prisma.attendance.findMany({ where: { groupId: group.id, date } })
   const presentById = new Map(attendance.map((item) => [item.studentId, item.present]))
   await prisma.$transaction(

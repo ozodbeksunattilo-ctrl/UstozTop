@@ -1,3 +1,5 @@
+// O'zbekiston vaqti: Vercel serverlari UTC'da ishlaydi, shuning uchun sana va hafta kuni (dars jadvali, bugungi darslar, eslatmalar) Toshkent bo'yicha hisoblanadi.
+process.env.TZ ||= 'Asia/Tashkent'
 import 'dotenv/config'
 
 const env = process.env
